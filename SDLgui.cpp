@@ -18,7 +18,7 @@ int SDLgui::InitGUI()
     return EXIT_SUCCESS;
 }
 
-int SDLgui::ExitGUI()
+int SDLgui::freeSurfaces()
 {
     if(mainMenu && helpMenu)
     {
@@ -33,7 +33,7 @@ int SDLgui::ExitGUI()
             {
                 SDL_FreeSurface(helpMenu[i-sizeTemp]);
             }
-            glDeleteTextures(19, TextureIDs);
+            //glDeleteTextures(19, TextureIDs);
         }
     }
     printf("\nExiting GUI\n");
@@ -64,7 +64,6 @@ int SDLgui::CreateGUIObjects()
         }
         else
         {
-            //glGenTextures(1, &TextureIDs[i]);
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(mainMenu[i]->format->BytesPerPixel == 4)
@@ -79,16 +78,10 @@ int SDLgui::CreateGUIObjects()
                 else
                     Mode = GL_BGR_EXT;
             }
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S , GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T , GL_REPEAT);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-               //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mainMenu[i]->w, mainMenu[i]->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
-            //glTexImage2D(GL_TEXTURE_2D, 0, mainMenu[i]->format->BytesPerPixel, mainMenu[i]->w, mainMenu[i]->h, 0, Mode, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
-            //glTexImage2D(GL_TEXTURE_2D, 0, colors = surface->format->BytesPerPixel, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
-            //SDL_FreeSurface(mainMenu[i]);
+            glTexImage2D(GL_TEXTURE_2D, 0, mainMenu[i]->format->BytesPerPixel, mainMenu[i]->w, mainMenu[i]->h, 0, Mode, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
         }
     }
     for(int y = 0; y<(int)(sizeof(helpMenu)/sizeof(SDL_Surface)); ++y)
@@ -102,8 +95,6 @@ int SDLgui::CreateGUIObjects()
         }
         else
         {
-            //SDL_SaveBMP(surfaceMessage, "./Test.bmp"); //<-- THIS WORKS FINE (outputs correct image)
-            //glGenTextures(1, &TextureIDs[i]);
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(helpMenu[y]->format->BytesPerPixel == 4)
@@ -120,10 +111,7 @@ int SDLgui::CreateGUIObjects()
             }
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S , GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T , GL_CLAMP);*/
             glTexImage2D(GL_TEXTURE_2D, 0, helpMenu[y]->format->BytesPerPixel, helpMenu[y]->w, helpMenu[y]->h, 0, Mode, GL_UNSIGNED_BYTE, helpMenu[y]->pixels);
-            //SDL_FreeSurface(helpMenu[y]);
         }
     }
     for(int u = 0; u<(int)(sizeof(numbers)/sizeof(SDL_Surface)); ++u)
@@ -138,7 +126,6 @@ int SDLgui::CreateGUIObjects()
         }
         else
         {
-            //SDL_SaveBMP(surfaceMessage, "./Test.bmp"); //<-- THIS WORKS FINE (outputs correct image)
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(numbers[u]->format->BytesPerPixel == 4)
@@ -155,8 +142,6 @@ int SDLgui::CreateGUIObjects()
             }
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            /*glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S , GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T , GL_CLAMP);*/
             glTexImage2D(GL_TEXTURE_2D, 0, numbers[u]->format->BytesPerPixel, numbers[u]->w, numbers[u]->h, 0, Mode, GL_UNSIGNED_BYTE, numbers[u]->pixels);
         }
     }
@@ -165,7 +150,7 @@ int SDLgui::CreateGUIObjects()
     return EXIT_SUCCESS;
 }
 
-void SDLgui::drawText(SDL_Rect &_position, int textID)
+void SDLgui::drawText(SDL_Rect &_position, int _textID)
 {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -179,7 +164,7 @@ void SDLgui::drawText(SDL_Rect &_position, int textID)
 
             glColor3f(1.0f,1.0f,1.0f);
             glEnable(GL_TEXTURE_2D);
-            glBindTexture(GL_TEXTURE_2D, textID);
+            glBindTexture(GL_TEXTURE_2D, _textID);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             // Draw a textured quad
@@ -197,7 +182,7 @@ void SDLgui::drawText(SDL_Rect &_position, int textID)
     glEnable(GL_LIGHT0);
 }
 
-void SDLgui::drawButton(SDL_Rect &_position, int buttonID, int &_state)
+void SDLgui::drawButton(SDL_Rect &_position, int _buttonID, int &_state)
 {
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -226,18 +211,12 @@ void SDLgui::drawButton(SDL_Rect &_position, int buttonID, int &_state)
                 glVertex2i(_position.x-5, _position.y+_position.h+5);
             glEnd();
 
-
-
             //increment by state to pick corresponding texture (ID is supposed to be correctly specified to 0 variant of button initially)
-            glBindTexture(GL_TEXTURE_2D, TextureIDs[buttonID+_state]);
+            glBindTexture(GL_TEXTURE_2D, TextureIDs[_buttonID+_state]);
             glEnable(GL_TEXTURE_2D);
-            //glEnable(GL_BLEND);
-            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glColor3f(1.0f,1.0f,1.0f);
-
             // Draw a textured quad
             glBegin(GL_QUADS);
-              //glNormal3i(0, -1, 0);
                 glTexCoord2f(0, 0); glVertex2i(_position.x, _position.y);
                 glTexCoord2f(0, 1); glVertex2i(_position.x, _position.y+_position.h);
                 glTexCoord2f(1, 1); glVertex2i(_position.x+_position.w, _position.y+_position.h);

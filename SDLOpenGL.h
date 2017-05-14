@@ -3,6 +3,14 @@
 #include <SDL.h>
 #include <string>
 
+/// \brief SDL Opengl context creator
+/// \author Jonathan Macey
+/// \brief Taken from an existing project. Was kept intact ever since.
+/// Jonathan Macey (February 22, 2016). SDLOpenGL Project [online].
+/// [Accessed 2017]. Available from: "https://github.com/jmacey/-SDLOpenGL".
+/// \class SDLOpenGL
+/// \brief SDL Opengl context creator
+
 class SDLOpenGL
 {
   public :
@@ -34,6 +42,6 @@ class SDLOpenGL
 
     SDL_Window *m_window;
 
-};
+}; //end of class
 
 #endif

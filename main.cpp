@@ -39,17 +39,17 @@ int main()
     //Create main Camera
     Camera mainCamera;
     //set up the camera
-    mainCamera.camTarget = glm::vec3(0,0,0);
-    mainCamera.up = glm::vec3(0,1,0);
-    mainCamera.position = glm::vec3(0,0,1);
-    mainCamera._fovy = 1.2f;
-    mainCamera._aspect = float(1600/800);
-    mainCamera._zNear = 0.05f;
-    mainCamera._zFar = 1000.0f;
+    mainCamera.m_camTarget = glm::vec3(0,0,0);
+    mainCamera.m_up = glm::vec3(0,1,0);
+    mainCamera.m_position = glm::vec3(0,0,1);
+    mainCamera.m_fovy = 1.2f;
+    mainCamera.m_aspect = float(1600/800);
+    mainCamera.m_zNear = 0.05f;
+    mainCamera.m_zFar = 1000.0f;
     // setup our default OpenGL window state
     initOpenGL(mainCamera);
 
-    bool exitStat = false;
+    bool exitStatus = false;
 
     //next is a variable for controlling which type of thing to run
     //0 = mainMenu, 1 = helpMenu, 2 = mainGameLoop, 3 = jumpScreen
@@ -91,7 +91,7 @@ int main()
     {
         return EXIT_FAILURE;
     }
-    menuControl.ExitGUI();
+    menuControl.freeSurfaces();
 
     srand (static_cast <unsigned> (time(0)));
     std::chrono::system_clock::time_point gameStartT;
@@ -113,12 +113,8 @@ int main()
 
     //scene generator and game object container
     SceneGenerator mainController;
-    //mainController.generateScene();
-    //mainController.redoGeneration = true;
 
-    //wait(3);
-
-    while (exitStat != true) //MAIN GAME LOOP
+    while (exitStatus != true) //MAIN GAME LOOP
     {
         startT = std::chrono::system_clock::now();
         //handle mouse states first
@@ -130,7 +126,7 @@ int main()
             switch (event.type)
             {
             // this is the window x being clicked.
-            case SDL_QUIT : exitStat = true; break;
+            case SDL_QUIT : exitStatus = true; break;
                 // now we look for a keydown event
             case SDL_KEYDOWN:
             {
@@ -139,7 +135,12 @@ int main()
                     switch( event.key.keysym.sym )
                     {
                     // if it's the escape key quit
-                    case SDLK_ESCAPE :  exitStat = true; break;
+                    case SDLK_ESCAPE :
+                    {
+                        mainController.flushObjectData();
+                        gameState = 0;
+                        break;
+                    }
                         // make OpenGL draw wireframe
                     case SDLK_w :
                     {
@@ -158,12 +159,12 @@ int main()
                     }
                     case SDLK_LSHIFT :
                     {
-                        mainController.allShipObjects.at(0).IncreaseSpeed(deltaTime);
+                        mainController.m_allShipObjects.at(0).IncreaseSpeed(deltaTime);
                         break;
                     }
                     case SDLK_LCTRL :
                     {
-                        mainController.allShipObjects.at(0).IncreaseSpeed(-deltaTime);
+                        mainController.m_allShipObjects.at(0).IncreaseSpeed(-deltaTime);
                         break;
                     }
                     case SDLK_t :
@@ -173,25 +174,25 @@ int main()
                     }
                     case SDLK_SPACE :
                     {
-                        mainController.allShipObjects.at(0).FireBullet(mainController.allShipObjects.at(0).target, gameTime);
+                        mainController.m_allShipObjects.at(0).FireBullet(mainController.m_allShipObjects.at(0).target, gameTime);
                         break;
                     }
                     case SDLK_x :
                     {
-                        if(!mainController.allShipObjects.empty())
+                        if(!mainController.m_allShipObjects.empty())
                         {
-                            int curTag = (int)mainController.allShipObjects.at(0).tag;
+                            int curTag = (int)mainController.m_allShipObjects.at(0).m_tag;
                             ++curTag;
                             if(curTag >= 3){curTag = 0;}
-                            mainController.allShipObjects.at(0).tag = static_cast<objTag>(curTag);
+                            mainController.m_allShipObjects.at(0).m_tag = static_cast<objTag>(curTag);
                         }
                         break;
                     }
                     case SDLK_z :
                     {
-                        if(!mainController.allShipObjects.empty())
+                        if(!mainController.m_allShipObjects.empty())
                         {
-                            mainController.allShipObjects.at(0).isPlayer = !mainController.allShipObjects.at(0).isPlayer;
+                            mainController.m_allShipObjects.at(0).isPlayer = !mainController.m_allShipObjects.at(0).isPlayer;
                         }
                         break;
                     }
@@ -215,9 +216,7 @@ int main()
                                mouseY > menuButtons[i].y && mouseY < (menuButtons[i].y+menuButtons[i].h))
                             {
                                 buttonStates[i] = 2;
-                                //wait(1);
                             }
-
                         }
                         if(gameState == 1)//in help Menu
                         {
@@ -258,9 +257,9 @@ int main()
             }
         default : break;
         }
-        mainCamera.oldX=mouseX;
-        mainCamera.oldY=mouseY;
-        mainCamera.oldZoom = mouseY;
+        mainCamera.m_oldX=mouseX;
+        mainCamera.m_oldY=mouseY;
+        mainCamera.m_oldZoom = mouseY;
 
         if(gameState != 2)
             glClearColor(0.0f,0.0f,0.0f,1.0f);
@@ -291,7 +290,6 @@ int main()
             win.swapWindow();
             if(buttonStates[0] == 2)
             {
-
                 buttonStates[0] = 0;
                 buttonStates[1] = 0;
                 buttonStates[2] = 0;
@@ -302,7 +300,6 @@ int main()
             }
             if(buttonStates[1] == 2)
             {
-
                 buttonStates[0] = 0;
                 buttonStates[1] = 0;
                 buttonStates[2] = 0;
@@ -310,7 +307,7 @@ int main()
             }
             if(buttonStates[2] == 2)
             {
-                exitStat = true;
+                exitStatus = true;
             }
             break;
         }
@@ -325,32 +322,32 @@ int main()
         }
         case 2 :
         {
-            if(mainController.redoGeneration == true)
+            if(mainController.m_redoGeneration == true)
             {
                 gameState = 3;
             }
             else
             {
                 //update all object data
-                for(int i=0; i<(int)mainController.allShipObjects.size(); ++i)
+                for(int i=0; i<(int)mainController.m_allShipObjects.size(); ++i)
                 {
-                    if(i == 0 && mainController.allShipObjects.at(0).isPlayer == true)
+                    if(i == 0 && mainController.m_allShipObjects.at(0).isPlayer == true)
                     {
-                        mainController.allShipObjects.at(0).fireWeapons = fireWeapons;
+                        mainController.m_allShipObjects.at(0).fireWeapons = fireWeapons;
                         mainCamera.getCamDir();
-                        glm::vec3 temp = -mainCamera.forward;
-                        temp += mainController.allShipObjects.at(0).position;
-                        mainController.allShipObjects.at(0).target = temp;
+                        glm::vec3 temp = -mainCamera.m_forward;
+                        temp += mainController.m_allShipObjects.at(0).m_position;
+                        mainController.m_allShipObjects.at(0).target = temp;
                     }
-                    mainController.allShipObjects.at(i).FlyShip(deltaTime, gameTime, playerScore);
+                    mainController.m_allShipObjects.at(i).FlyShip(deltaTime, gameTime, playerScore);
                 }
                 mainController.checkForDead(gameTime); //check and remove any "dead" bullets
                 //also "remove" and reset any dead ships, check if any ships out of bounds (kill and reset them if so)
 
                 float bulletSpeed = deltaTime*5.0f;
-                for(int i=0; i<(int)mainController.allBullets.size(); ++i)
+                for(int i=0; i<(int)mainController.m_allBullets.size(); ++i)
                 {
-                    mainController.allBullets.at(i).moveObject(bulletSpeed);
+                    mainController.m_allBullets.at(i).moveObject(bulletSpeed);
                 }
                 //update camera vectors
                 updateCam(mainCamera);
@@ -370,7 +367,7 @@ int main()
             printf("\nHull Integrity Critical! Performing Emergency Jump!\n");
             wait(3);
             mainController.generateScene();
-            glClearColor(mainController.BGcolor.x,mainController.BGcolor.y,mainController.BGcolor.z,1.0);
+            glClearColor(mainController.m_BGcolor.x,mainController.m_BGcolor.y,mainController.m_BGcolor.z,1.0);
             gameState = 2;
             break;
         }
@@ -407,16 +404,6 @@ void updateCam(Camera _cam)
 {
     _cam.camPerspective();
     _cam.lookAtTgt();
-}
-
-void waitScreen(Camera _cam)
-{
-    glClearColor(0.5f,0.01f,0.01f,1.0f);
-    _cam.camPerspective();
-    _cam.lookAtTgt();
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDisable(GL_LIGHTING);
-    glDisable(GL_LIGHT0);
 }
 
 void wait ( int seconds )

@@ -73,3 +73,7 @@ LIBS += -lOpenGL32
 CONFIG+=console
 DLLDESTDIR
 }
+
+HEADERS +=
+
+SOURCES +=

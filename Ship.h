@@ -2,12 +2,18 @@
 #define SHIP_H
 #include "GameObject.h"
 
+/// \brief Main object (ship) handling module
+/// \author Renats Bikmajevs
+
+/// \class Ship
+/// \brief This class includes all properties and AI necessary for automatic event handling
+
 class Ship: public GameObject
 {
 private:
-    float collisionDist = 2.0f;
+    float m_collisionDist = 2.0f;
 
-    glm::vec3 navpoint;
+    glm::vec3 m_navpoint;
     std::vector<GameObject> *allGOs;
     std::vector<GameObject> *allBuls;
     std::vector<Ship> *allShips;
@@ -36,9 +42,9 @@ public:
     Ship(glm::vec3 _pos, glm::vec3 &_rot, objTag _tag, bool _isPlr,
          std::vector<GameObject> *_allGOS, std::vector<Ship> *_allShips, std::vector<GameObject> *_allBullets)
     {
-        position = _pos;
-        rotation = _rot;
-        tag = _tag;
+        m_position = _pos;
+        m_rotation = _rot;
+        m_tag = _tag;
         isPlayer = _isPlr;
         allGOs = _allGOS;
         allShips = _allShips;
@@ -71,6 +77,6 @@ public:
     void resetShip();
 
     template<typename T1> T1* GetNearestTgtObj (std::vector<T1>* _allObjs, objTag tagg[], bool _isBul);
-};
+}; //end of class
 
 #endif // SHIP_H

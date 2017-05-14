@@ -1,6 +1,7 @@
 ///
-///  @file Name.cpp
-///  @brief A short description of the module
+/// @file Camera.cpp
+/// @brief This module handles all camera related methods
+/// including loading matrices and adjusting camera properties
 
 #include "Camera.h"
 #ifdef WIN32
@@ -18,22 +19,22 @@
 
 void Camera::lookAtTgt()
 {
-    eye = position+camTarget;
-    loadModelView(glm::lookAt(eye, camTarget, glm::vec3(0,1,0)));
+    m_eye = m_position+m_camTarget;
+    loadModelView(glm::lookAt(m_eye, m_camTarget, glm::vec3(0,1,0)));
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::camPerspective()
 {
-    loadProjection(glm::perspective(_fovy, _aspect, _zNear, _zFar));
+    loadProjection(glm::perspective(m_fovy, m_aspect, m_zNear, m_zFar));
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::loadModelView(glm::mat4 _matrix)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMultMatrixf((const float*)glm::value_ptr(_matrix));
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::loadProjection(glm::mat4 _matrix)
 {
     glMatrixMode(GL_PROJECTION);
@@ -41,57 +42,57 @@ void Camera::loadProjection(glm::mat4 _matrix)
     glMultMatrixf((const float*)glm::value_ptr(_matrix));
     glMatrixMode(GL_MODELVIEW);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::camOrbit(int &_x, int &_y)
 {    
-    int diffx=_x-oldX;
-    int diffy=_y-oldY;
-    rotX += (float) 0.5f * diffy;
-    rotY += (float) 0.5f * diffx;
+    int diffx=_x-m_oldX;
+    int diffy=_y-m_oldY;
+    m_rotX += (float) 0.5f * diffy;
+    m_rotY += (float) 0.5f * diffx;
     //prevent from flipping camera
-    if(rotX > 85.0f)
+    if(m_rotX > 85.0f)
     {
-        rotX = 85.0f;
+        m_rotX = 85.0f;
     }
-    if(rotX < -85.0f)
+    if(m_rotX < -85.0f)
     {
-        rotX = -85.0f;
+        m_rotX = -85.0f;
     }
     //make sure we're not dealing with overly big angles
-    if(rotY > 360.0f)
+    if(m_rotY > 360.0f)
     {
-        rotY -= 360.0f;
+        m_rotY -= 360.0f;
     }
-    if(rotY < -360.0f)
+    if(m_rotY < -360.0f)
     {
-        rotY += 360.0f;
+        m_rotY += 360.0f;
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::camZoom(int &_y)
 {
-    int diffy=_y-oldZoom;
-    zoom -= (float)0.05f * diffy;
+    int diffy=_y-m_oldZoom;
+    m_zoom -= (float)0.05f * diffy;
     //max zoom
-    if(zoom > 25.0f)
+    if(m_zoom > 25.0f)
     {
-        zoom = 25.0f;
+        m_zoom = 25.0f;
     }
     //min zoom
-    if(zoom < 1.0f)
+    if(m_zoom < 1.0f)
     {
-        zoom = 1.0f;
+        m_zoom = 1.0f;
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Camera::getCamDir()
 {
-    rotation.y = rotY;
-    rotation.x = 0;
-    rotation.z = 0;
+    m_rotation.y = m_rotY;
+    m_rotation.x = 0;
+    m_rotation.z = 0;
     anglesToAxes();
 
-    forward = ((float)cos(glm::radians(rotX))*forward) + ((float)sin(glm::radians(rotX))*glm::cross(left, forward)) +
-            ((1 - (float)cos(glm::radians(rotX)))*(glm::dot(left,forward))*forward);
-    forward*=20.0f;
+    m_forward = ((float)cos(glm::radians(m_rotX))*m_forward) + ((float)sin(glm::radians(m_rotX))*glm::cross(m_left, m_forward)) +
+            ((1 - (float)cos(glm::radians(m_rotX)))*(glm::dot(m_left,m_forward))*m_forward);
+    m_forward*=20.0f;
 }
