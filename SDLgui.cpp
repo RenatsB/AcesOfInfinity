@@ -33,7 +33,7 @@ int SDLgui::ExitGUI()
             {
                 SDL_FreeSurface(helpMenu[i-sizeTemp]);
             }
-            glDeleteTextures(1, &TextureIDs[i]);
+            glDeleteTextures(19, TextureIDs);
         }
     }
     printf("\nExiting GUI\n");
@@ -52,6 +52,8 @@ int SDLgui::CreateGUIObjects()
     mainMenu[6] = TTF_RenderUTF8_Solid(font, labels[2], fontMainColor);
     mainMenu[7] = TTF_RenderUTF8_Solid(font, labels[2], fontHoverColor);
     mainMenu[8] = TTF_RenderUTF8_Solid(font, labels[2], fontPressedColor);
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(19, TextureIDs);
 
     for(int i = 0; i<(int)(sizeof(mainMenu)/sizeof(SDL_Surface)); ++i)
     {
@@ -62,7 +64,7 @@ int SDLgui::CreateGUIObjects()
         }
         else
         {
-            glGenTextures(1, &TextureIDs[i]);
+            //glGenTextures(1, &TextureIDs[i]);
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(mainMenu[i]->format->BytesPerPixel == 4)
@@ -83,7 +85,7 @@ int SDLgui::CreateGUIObjects()
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
                //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, pixels);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mainMenu[i]->w, mainMenu[i]->h, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, mainMenu[i]->w, mainMenu[i]->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
             //glTexImage2D(GL_TEXTURE_2D, 0, mainMenu[i]->format->BytesPerPixel, mainMenu[i]->w, mainMenu[i]->h, 0, Mode, GL_UNSIGNED_BYTE, mainMenu[i]->pixels);
             //glTexImage2D(GL_TEXTURE_2D, 0, colors = surface->format->BytesPerPixel, surface->w, surface->h, 0, texture_format, GL_UNSIGNED_BYTE, surface->pixels);
             //SDL_FreeSurface(mainMenu[i]);
@@ -101,7 +103,7 @@ int SDLgui::CreateGUIObjects()
         else
         {
             //SDL_SaveBMP(surfaceMessage, "./Test.bmp"); //<-- THIS WORKS FINE (outputs correct image)
-            glGenTextures(1, &TextureIDs[i]);
+            //glGenTextures(1, &TextureIDs[i]);
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(helpMenu[y]->format->BytesPerPixel == 4)
@@ -137,7 +139,6 @@ int SDLgui::CreateGUIObjects()
         else
         {
             //SDL_SaveBMP(surfaceMessage, "./Test.bmp"); //<-- THIS WORKS FINE (outputs correct image)
-            glGenTextures(1, &TextureIDs[i]);
             glBindTexture(GL_TEXTURE_2D, TextureIDs[i]);
             int Mode = GL_RGB;
             if(numbers[u]->format->BytesPerPixel == 4)
@@ -175,11 +176,12 @@ void SDLgui::drawText(SDL_Rect &_position, int textID)
             glLoadIdentity();
             glDisable(GL_LIGHTING);
             glDisable(GL_LIGHT0);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
             glColor3f(1.0f,1.0f,1.0f);
             glEnable(GL_TEXTURE_2D);
             glBindTexture(GL_TEXTURE_2D, textID);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             // Draw a textured quad
             glBegin(GL_QUADS);
                 glTexCoord2f(0, 0); glVertex2i(_position.x, _position.y);
@@ -207,10 +209,10 @@ void SDLgui::drawButton(SDL_Rect &_position, int buttonID, int &_state)
             glDisable(GL_LIGHTING);
             glDisable(GL_LIGHT0);
 
-            //glEnable(GL_BLEND);
-            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             //convert color values so they would fit into {0,1} instead of {0,255}
-            /*if(_state == 0)
+            if(_state == 0)
                 glColor3f((float)buttonMainColor.r/255.0f,(float)buttonMainColor.g/255.0f,(float)buttonMainColor.b/255.0f);
             if(_state == 1)
                 glColor3f((float)buttonHoverColor.r/255.0f,(float)buttonHoverColor.g/255.0f,(float)buttonHoverColor.b/255.0f);
@@ -222,15 +224,15 @@ void SDLgui::drawButton(SDL_Rect &_position, int buttonID, int &_state)
                 glVertex2i(_position.x+_position.w+5, _position.y-5);
                 glVertex2i(_position.x+_position.w+5, _position.y+_position.h+5);
                 glVertex2i(_position.x-5, _position.y+_position.h+5);
-            glEnd();*/
+            glEnd();
 
 
 
             //increment by state to pick corresponding texture (ID is supposed to be correctly specified to 0 variant of button initially)
-            glBindTexture(GL_TEXTURE_2D, static_cast<GLuint>(buttonID+_state));
+            glBindTexture(GL_TEXTURE_2D, TextureIDs[buttonID+_state]);
             glEnable(GL_TEXTURE_2D);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            //glEnable(GL_BLEND);
+            //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glColor3f(1.0f,1.0f,1.0f);
 
             // Draw a textured quad

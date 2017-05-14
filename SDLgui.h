@@ -35,7 +35,7 @@ public:
 
     void updateGUIData(const  std::string _sceneName, const float _score, const float _speed);
 private:
-    GLuint TextureIDs[19];
+    GLuint *TextureIDs = new GLuint[19];
 
     TTF_Font *font;
 

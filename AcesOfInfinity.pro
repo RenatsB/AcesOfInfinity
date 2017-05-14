@@ -13,7 +13,8 @@ SOURCES += main.cpp \
     GameObject.cpp \
     SceneGenerator.cpp \
     SDLOpenGL.cpp \
-    Camera.cpp
+    Camera.cpp \
+    SDLgui.cpp
 
 HEADERS += \
     Mesh.h \
@@ -22,25 +23,28 @@ HEADERS += \
     GameObject.h \
     Ship.h \
     SDLOpenGL.h \
-    Camera.h
+    Camera.h \
+    SDLgui.h
 }
 !win32 : {
-SOURCES += $$pwd/main.cpp \
-    $$pwd/Mesh.cpp \
-    $$pwd/Ship.cpp \
-    $$pwd/GameObject.cpp \
-    $$pwd/SceneGenerator.cpp \
-    $$pwd/SDLOpenGL.cpp \
-    $$pwd/Camera.cpp
+SOURCES += $$PWD/main.cpp \
+    $$PWD/Mesh.cpp \
+    $$PWD/Ship.cpp \
+    $$PWD/GameObject.cpp \
+    $$PWD/SceneGenerator.cpp \
+    $$PWD/SDLOpenGL.cpp \
+    $$PWD/Camera.cpp \
+    $$PWD/SDLgui.cpp
 
 HEADERS += \
-    $$pwd/Mesh.h \
-    $$pwd/SceneGenerator.h \
-    $$pwd/NameGenerator.h \
-    $$pwd/GameObject.h \
-    $$pwd/Ship.h \
-    $$pwd/SDLOpenGL.h \
-    $$pwd/Camera.h
+    $$PWD/Mesh.h \
+    $$PWD/SceneGenerator.h \
+    $$PWD/NameGenerator.h \
+    $$PWD/GameObject.h \
+    $$PWD/Ship.h \
+    $$PWD/SDLOpenGL.h \
+    $$PWD/Camera.h \
+    $$PWD/SDLgui.h
 }
 CONFIG-=app_bundle
 win32 : {
@@ -48,15 +52,14 @@ LIBS+= -LSDL2-2.0.5\lib\x86
 LIBS+= -LQt\5.8\mingw53_32\bin
 LIBS+= -LQt\Tools\mingw530_32\bin
 }
-macx:QMAKE_CXXFLAGS+= -arch x86_64
 
 !win32 :{
 QMAKE_CXXFLAGS += $$system(sdl2-config --cflags)
 LIBS+=$$system(sdl2-config --libs)
-}
-
-!win32:LIBS += -L/usr/local/lib
+LIBS += -L/usr/local/lib
 macx:LIBS+= -framework OpenGL
+macx:QMAKE_CXXFLAGS+= -arch x86_64
+}
 
 
 win32 : {
@@ -70,9 +73,3 @@ LIBS += -lOpenGL32
 CONFIG+=console
 DLLDESTDIR
 }
-
-HEADERS += \
-    SDLgui.h
-
-SOURCES += \
-    SDLgui.cpp

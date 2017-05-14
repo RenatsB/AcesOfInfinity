@@ -64,8 +64,23 @@ int main()
         menuButtons[i].h = 200;
         menuButtons[i].y = 80+(200*i)+(20*i);
     }
-    SDL_Rect *textPositions[12];
+    SDL_Rect textPositions[12];
+    for(int i =0; i<10; ++i)
+    {
+        textPositions[i].x = 400;
+        textPositions[i].w = 800;
+        textPositions[i].h = 70;
+        textPositions[i].y = 5+(70*i)+(10*i);
+    }
+    textPositions[10].x = 400;
+    textPositions[10].w = 800;
+    textPositions[10].h = 120;
+    textPositions[10].y = 380;
 
+    textPositions[11].x = 400;
+    textPositions[11].w = 800;
+    textPositions[11].h = 90;
+    textPositions[11].y = 540;
     //create and load gui
     SDLgui menuControl;
     if(menuControl.InitGUI() == 1)
@@ -98,7 +113,7 @@ int main()
 
     //scene generator and game object container
     SceneGenerator mainController;
-    mainController.generateScene();
+    //mainController.generateScene();
     //mainController.redoGeneration = true;
 
     //wait(3);
@@ -247,7 +262,12 @@ int main()
         mainCamera.oldY=mouseY;
         mainCamera.oldZoom = mouseY;
 
-        if(gameState == 0)
+        if(gameState != 2)
+            glClearColor(0.0f,0.0f,0.0f,1.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        switch(gameState)
+        {
+        case 0 :
         {
             for(int i =0; i<3; ++i)
             {
@@ -264,40 +284,50 @@ int main()
                     buttonStates[i] = 0;
                 }
             }
-            glClearColor(0.0f,0.0f,0.0f,1.0f);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             for(int i =0; i<3; ++i)
             {
                 menuControl.drawButton(menuButtons[i], i*3, buttonStates[i]);
             }
-
+            win.swapWindow();
             if(buttonStates[0] == 2)
             {
-                gameState = 2;
+
                 buttonStates[0] = 0;
                 buttonStates[1] = 0;
                 buttonStates[2] = 0;
                 glEnable(GL_LIGHTING);
                 glEnable(GL_LIGHT0);
+                mainController.generateScene();
+                gameState = 2;
+            }
+            if(buttonStates[1] == 2)
+            {
+
+                buttonStates[0] = 0;
+                buttonStates[1] = 0;
+                buttonStates[2] = 0;
+                gameState = 1;
+            }
+            if(buttonStates[2] == 2)
+            {
+                exitStat = true;
+            }
+            break;
+        }
+        case 1 :
+        {
+            for(int i =0; i<10; ++i)
+            {
+                menuControl.drawText(textPositions[i], i);
             }
             win.swapWindow();
+            break;
         }
-
-        if(gameState == 2)
+        case 2 :
         {
             if(mainController.redoGeneration == true)
             {
-                mainController.flushObjectData();
-                printf("\nHull Integrity Critical! Performing Emergency Jump!\n");
-                //mainCamera.oldX=45;
-                //mainCamera.oldY=25;
-                //mainCamera.oldZoom = 1;
-                waitScreen(mainCamera);
-                win.swapWindow();
-                wait(3);
-                mainController.generateScene();
-                //initOpenGL(mainCamera);
-                glClearColor(mainController.BGcolor.x,mainController.BGcolor.y,mainController.BGcolor.z,1.0);
+                gameState = 3;
             }
             else
             {
@@ -329,8 +359,22 @@ int main()
             mainController.draw(mainCamera);
             // update the buffer so we can see what we have drawn.
             win.swapWindow();
+            break;
         }
-
+        case 3 :
+        {
+            menuControl.drawText(textPositions[10], 10);
+            menuControl.drawText(textPositions[11], 11);
+            win.swapWindow();
+            mainController.flushObjectData();
+            printf("\nHull Integrity Critical! Performing Emergency Jump!\n");
+            wait(3);
+            mainController.generateScene();
+            glClearColor(mainController.BGcolor.x,mainController.BGcolor.y,mainController.BGcolor.z,1.0);
+            gameState = 2;
+            break;
+        }
+        }
 
        endT = std::chrono::system_clock::now();
        gameCurrentT = endT;
