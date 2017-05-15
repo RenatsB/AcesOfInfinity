@@ -1,3 +1,7 @@
+///
+/// @file SceneGenerator.cpp
+/// @brief This module handles scene and game object generation
+
 #include "SceneGenerator.h"
 #include <iostream>
 #include "Mesh.h"
@@ -60,6 +64,7 @@ void SceneGenerator::generateScene()
         //first create player
         glm::vec3 zeroVec = {0,0,0};
         Ship player(zeroVec, zeroVec, TERRAN, true, &m_allGameObjects, &m_allShipObjects, &m_allBullets);
+        player.m_toggleAI = false;
         player.m_forward = {0,0,10};
         m_allShipObjects.push_back(player);
         printf("\nDone creating player!\n");
@@ -95,7 +100,7 @@ void SceneGenerator::generateScene()
         m_redoGeneration = true;
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SceneGenerator::randomizeStats()
 {
     printf("\nStarting stat randomization...\n");
@@ -144,7 +149,7 @@ void SceneGenerator::randomizeStats()
 
     printf("\nThis sector is controlled by: %s\n", tempStr.c_str());
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SceneGenerator::flushObjectData()
 {
     printf("\nPerforming Object Data Flush...\n");
@@ -165,7 +170,7 @@ void SceneGenerator::flushObjectData()
     m_name.resize(0);
     printf("\nScene data reset!\n");
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SceneGenerator::checkForDead(float &_curTime)
 {
     //loop through all ships
@@ -208,7 +213,7 @@ void SceneGenerator::checkForDead(float &_curTime)
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SceneGenerator::draw(Camera &_cam)
 {
   //Main draw function.

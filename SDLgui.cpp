@@ -1,3 +1,7 @@
+///
+/// @file SDLgui.cpp
+/// @brief This module handles all text and GUI related methods
+
 #include "SDLgui.h"
 
 int SDLgui::InitGUI()
@@ -7,10 +11,17 @@ int SDLgui::InitGUI()
         printf("TTF_Init: %s\n", TTF_GetError());
         return EXIT_FAILURE;
     }
-    //newFont = TTF_OpenFont("C:/Windows/Fonts/terminat.ttf", 48);
-    //m_font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", fontsize);
-    //m_font = TTF_OpenFont("/run/media/s4917836/299E-11EE/PPP/AcesOfInfinity/ZeroGravity.ttf", fontsize);
-    m_font = TTF_OpenFont("/usr/share/fonts/gnu-free/FreeSans.ttf", fontsize);
+    #ifdef WIN32
+      m_font = TTF_OpenFont("C:/Windows/Fonts/arial.ttf", fontsize);
+    #endif
+
+    #if defined (__linux__)
+      m_font = TTF_OpenFont("/usr/share/fonts/gnu-free/FreeSans.ttf", fontsize);
+    #endif
+    #ifdef __APPLE__
+      m_font = TTF_OpenFont("/usr/share/fonts/gnu-free/FreeSans.ttf", fontsize);
+    #endif
+
     if(!m_font)
     {
         printf("m_font load fail: %s",TTF_GetError());
@@ -18,33 +29,39 @@ int SDLgui::InitGUI()
     }
     return EXIT_SUCCESS;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 int SDLgui::freeSurfaces()
 {
     if(m_mainMenu && m_helpMenu)
     {
-        int sizeTemp = (int)(sizeof(m_mainMenu)/sizeof(SDL_Surface))+(int)(sizeof(m_helpMenu)/sizeof(SDL_Surface));
-        for(int i = 0; i<sizeTemp; ++i)
+        int mm = (int)(sizeof(m_mainMenu)/sizeof(m_mainMenu[0]));
+        int hm = (int)(sizeof(m_helpMenu)/sizeof(m_helpMenu[0]));
+        int nn = (int)(sizeof(m_numbers)/sizeof(m_numbers[0]));
+        for(int i = 0; i<mm; ++i)
         {
-            if(i<sizeTemp)
-            {
-                SDL_FreeSurface(m_mainMenu[i]);
-            }
-            else
-            {
-                SDL_FreeSurface(m_helpMenu[i-sizeTemp]);
-            }
-            //glDeleteTextures(19, m_TextureIDs);
+            SDL_FreeSurface(m_mainMenu[i]);
+        }
+        for(int i = 0; i<hm; ++i)
+        {
+            SDL_FreeSurface(m_helpMenu[i]);
+        }
+        for(int i = 0; i<nn; ++i)
+        {
+            SDL_FreeSurface(m_numbers[i]);
         }
     }
     printf("\nExiting GUI\n");
     return EXIT_SUCCESS;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
+void SDLgui::deleteAllTextures()
+{
+    glDeleteTextures(35, m_TextureIDs);
+}
+//----------------------------------------------------------------------------------------------------------------------
 int SDLgui::CreateGUIObjects()
 {
     m_mainMenu[0] = TTF_RenderUTF8_Solid(m_font, m_labels[0], m_fontMainColor);
-    //SDL_SaveBMP(m_mainMenu[0], "./Test.bmp"); //<-- THIS WORKS FINE (outputs correct image)
     m_mainMenu[1] = TTF_RenderUTF8_Solid(m_font, m_labels[0], m_fontHoverColor);
     m_mainMenu[2] = TTF_RenderUTF8_Solid(m_font, m_labels[0], m_fontPressedColor);
     m_mainMenu[3] = TTF_RenderUTF8_Solid(m_font, m_labels[1], m_fontMainColor);
@@ -60,7 +77,6 @@ int SDLgui::CreateGUIObjects()
     int nn = (int)(sizeof(m_numbers)/sizeof(m_numbers[0]));
 
     for(int i = 0; i<mm; ++i)
-    //for(int i = 0; i<9; ++i)
     {
         if(!m_mainMenu[i])
         {
@@ -71,7 +87,6 @@ int SDLgui::CreateGUIObjects()
         {
             SDL_Surface* newSurface = SDL_CreateRGBSurface(0, m_mainMenu[i]->w, m_mainMenu[i]->h, 24, 0xff000000, 0x00ff0000, 0x0000ff00, 0);
             SDL_BlitSurface(m_mainMenu[i], 0, newSurface, 0); // Blit onto a purely RGB Surface
-
             m_mainMenu[i] = newSurface;
             SDL_FreeSurface(newSurface);
             glBindTexture(GL_TEXTURE_2D, m_TextureIDs[i]);
@@ -109,7 +124,6 @@ int SDLgui::CreateGUIObjects()
         {
             SDL_Surface* newSurface = SDL_CreateRGBSurface(0, m_helpMenu[y]->w, m_helpMenu[y]->h, 24, 0xff000000, 0x00ff0000, 0x0000ff00, 0);
             SDL_BlitSurface(m_helpMenu[y], 0, newSurface, 0); // Blit onto a purely RGB Surface
-
             m_helpMenu[y] = newSurface;
             SDL_FreeSurface(newSurface);
             glBindTexture(GL_TEXTURE_2D, m_TextureIDs[y+mm]);
@@ -148,7 +162,6 @@ int SDLgui::CreateGUIObjects()
         {
             SDL_Surface* newSurface = SDL_CreateRGBSurface(0, m_numbers[u]->w, m_numbers[u]->h, 24, 0xff000000, 0x00ff0000, 0x0000ff00, 0);
             SDL_BlitSurface(m_numbers[u], 0, newSurface, 0); // Blit onto a purely RGB Surface
-
             m_numbers[u] = newSurface;
             SDL_FreeSurface(newSurface);
             glBindTexture(GL_TEXTURE_2D, m_TextureIDs[u+mm+hm]);
@@ -178,7 +191,7 @@ int SDLgui::CreateGUIObjects()
     TTF_Quit();
     return EXIT_SUCCESS;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLgui::drawText(SDL_Rect &_position, int _textID)
 {
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -211,7 +224,7 @@ void SDLgui::drawText(SDL_Rect &_position, int _textID)
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLgui::drawButton(SDL_Rect &_position, int _buttonID, int &_state)
 {
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -224,7 +237,6 @@ void SDLgui::drawButton(SDL_Rect &_position, int _buttonID, int &_state)
             glLoadIdentity();
             glDisable(GL_LIGHTING);
             glDisable(GL_LIGHT0);
-
 
             //convert color values so they would fit into {0,1} instead of {0,255}
             /*if(_state == 0)
@@ -260,7 +272,7 @@ void SDLgui::drawButton(SDL_Rect &_position, int _buttonID, int &_state)
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLgui::updateGUIData(const float &_score, const float &_speed, const float &_hp, const float &_sp)
 {
   m_score = _score;
@@ -268,7 +280,7 @@ void SDLgui::updateGUIData(const float &_score, const float &_speed, const float
   m_curHealth = _hp;
   m_curShield = _sp;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLgui::DrawAllStats(int _x, int _y)
 {
   DrawNumbers(m_score, _x, _y);
@@ -276,7 +288,7 @@ void SDLgui::DrawAllStats(int _x, int _y)
   DrawNumbers(m_curHealth, _x, _y+60);
   DrawNumbers(m_curShield, _x, _y+90);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLgui::DrawNumbers(int &_value, int _x, int _y)
 {
   SDL_Rect tempPos;
@@ -284,11 +296,12 @@ void SDLgui::DrawNumbers(int &_value, int _x, int _y)
   tempPos.y = _y;
   tempPos.w = 10;
   tempPos.h = 25;
-  std::string stringToCheck = Convert (_value);
+  std::string stringToCheck = Convert(_value); //convert integer input to a string
   if(!stringToCheck.empty()) //sanity check
   {
     for(int  i = 0; i<(int)stringToCheck.size(); ++i)
     {
+      //pick corresponding textures based on input
       switch(stringToCheck.at(i))
       {
       case '1' :

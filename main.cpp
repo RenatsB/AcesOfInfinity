@@ -1,3 +1,8 @@
+///
+/// @file main.cpp
+/// @brief This is the main module of the game controlling every other module of the game
+/// Also handles all key and button input
+
 #ifdef WIN32
   #include <Windows.h> // must be before gl.h include
 #endif
@@ -23,9 +28,11 @@
 
 // function to init OpenGL scene
 void initOpenGL(Camera _cam);
+// function to update camera matrices
 void updateCam(Camera _cam);
+// function that creates a wait screen when travelling between scenes
 void waitScreen(Camera _cam);
-
+// function to delay processec for a specified amount of seconds
 void wait ( int seconds );
 
 int main()
@@ -115,7 +122,9 @@ int main()
     float deltaTime;
 
     //we also need a few variables for ship and camera control
-    bool fireWeapons = false;
+    bool m_fireWeapons = false;
+    bool doAcceleration = false;
+    bool doDeceleration = false;
     int mouseX = 45;
     int mouseY = 25;
     //store player m_score in here
@@ -156,39 +165,35 @@ int main()
                         // make OpenGL draw wireframe
                     case SDLK_w :
                     {
-                        /*glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-                        glDisable(GL_LIGHTING);
-                        glDisable(GL_LIGHT0);*/
                         mainController.m_wireFrame = true;
                         break;
                     }
                         // make OpenGL draw solid
                     case SDLK_s :
                     {
-                        /*glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-                        glEnable(GL_LIGHTING);
-                        glEnable(GL_LIGHT0);*/
                         mainController.m_wireFrame = false;
                         break;
                     }
                     case SDLK_LSHIFT :
                     {
-                        mainController.m_allShipObjects.at(0).IncreaseSpeed(deltaTime);
+                        doAcceleration = true;
+                        doDeceleration = false;
                         break;
                     }
                     case SDLK_LCTRL :
                     {
-                        mainController.m_allShipObjects.at(0).IncreaseSpeed(-deltaTime);
+                        doDeceleration = true;
+                        doAcceleration = false;
                         break;
                     }
                     case SDLK_t :
                     {
-                        fireWeapons = !fireWeapons;
+                        m_fireWeapons = !m_fireWeapons;
                         break;
                     }
                     case SDLK_SPACE :
                     {
-                        mainController.m_allShipObjects.at(0).FireBullet(mainController.m_allShipObjects.at(0).target, gameTime);
+                        mainController.m_allShipObjects.at(0).FireBullet(mainController.m_allShipObjects.at(0).m_target, gameTime);
                         break;
                     }
                     case SDLK_x :
@@ -206,7 +211,7 @@ int main()
                     {
                         if(!mainController.m_allShipObjects.empty())
                         {
-                            mainController.m_allShipObjects.at(0).isPlayer = !mainController.m_allShipObjects.at(0).isPlayer;
+                            mainController.m_allShipObjects.at(0).m_toggleAI = !mainController.m_allShipObjects.at(0).m_toggleAI;
                         }
                         break;
                     }
@@ -214,6 +219,22 @@ int main()
                     } // end of key process
                 }
             } // end of keydown
+            case SDL_KEYUP :
+            {
+              switch( event.key.keysym.sym )
+              {
+              case SDLK_LSHIFT :
+              {
+                  doAcceleration = false;
+                  break;
+              }
+              case SDLK_LCTRL :
+              {
+                  doDeceleration = false;
+                  break;
+              }
+              }
+            }
             case SDL_MOUSEBUTTONDOWN :
             {
                 if(gameState != 2) //not main game loop
@@ -369,16 +390,24 @@ int main()
             }
             else
             {
+                if(doAcceleration == true)
+                {
+                  mainController.m_allShipObjects.at(0).IncreaseSpeed(deltaTime);
+                }
+                if(doDeceleration == true)
+                {
+                  mainController.m_allShipObjects.at(0).IncreaseSpeed(-deltaTime);
+                }
                 //update all object data
                 for(int i=0; i<(int)mainController.m_allShipObjects.size(); ++i)
                 {
-                    if(i == 0 && mainController.m_allShipObjects.at(0).isPlayer == true)
+                    if(i == 0 && mainController.m_allShipObjects.at(0).m_toggleAI == false)
                     {
-                        mainController.m_allShipObjects.at(0).fireWeapons = fireWeapons;
+                        mainController.m_allShipObjects.at(0).m_fireWeapons = m_fireWeapons;
                         mainCamera.getCamDir();
                         glm::vec3 temp = -mainCamera.m_forward;
                         temp += mainController.m_allShipObjects.at(0).m_position;
-                        mainController.m_allShipObjects.at(0).target = temp;
+                        mainController.m_allShipObjects.at(0).m_target = temp;
                     }
                     mainController.m_allShipObjects.at(i).FlyShip(deltaTime, gameTime, playerScore);
                 }
@@ -455,6 +484,7 @@ int main()
        tickCntr = std::chrono::duration_cast<std::chrono::seconds>(gameCurrentT - gameStartT).count();
        gameTime = (float)tickCntr;
     }
+    menuControl.deleteAllTextures();
     return EXIT_SUCCESS;
 }
 

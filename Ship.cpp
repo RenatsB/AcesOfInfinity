@@ -1,3 +1,7 @@
+///
+/// @file Ship.cpp
+/// @brief This module handles AI and movement of a ship object
+
 #include "Ship.h"
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -6,16 +10,16 @@ void Ship::IncreaseSpeed(float _value)
 {
     //this is mainly for being able to change m_speed from the outside (speeds are private)
     //although used internally as well
-    speeds[0] += speeds[3]*_value;
+    m_speeds[0] += m_speeds[3]*_value;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::FollowTarget(float &_deltaTime)
 {
-    //rotate and translate towards target
+    //rotate and translate towards m_target
     //take default direction vector on Z axis
     glm::vec3 fromVec = glm::vec3(0,0,10);
-    //take target direction as resulting vector
-    glm::vec3 toVec = target - m_position;
+    //take m_target direction as resulting vector
+    glm::vec3 toVec = m_target - m_position;
     //find rotation as quaternion necessary to apply to object to make it face resulting vector (inputs get normalised)
     glm::quat newRot = RotationBetweenVectors(fromVec, toVec);
     //convert current rotation angles to radians as quats use radians
@@ -23,81 +27,81 @@ void Ship::FollowTarget(float &_deltaTime)
     //convert current radian rotation to a quat
     glm::quat tmp1 = anglesToQuat(tempooo);
     //SLERP between current and resulting rotation
-    glm::quat temp = RotateTowards(tmp1, newRot, speeds[4]*_deltaTime);
+    glm::quat temp = RotateTowards(tmp1, newRot, m_speeds[4]*_deltaTime);
     //convert result back to degrees and assign to rotation variable
     m_rotation = glm::degrees(glm::eulerAngles(temp));
     //recalculate direction vectors
     anglesToAxes();
 
-    //handle m_speed
-    if(isPlayer == false) //player ship's m_speed is handled elsewhere
+    //handle speed
+    if(m_toggleAI == true) //player ship's m_speed is handled elsewhere
     {
-        //increase m_speed
-        if(speeds[0]<speeds[2]) //current < Max
+        //increase speed
+        if(m_speeds[0]<m_speeds[2]) //current < Max
         {
             IncreaseSpeed(_deltaTime);
         }
-        if(speeds[0] > speeds[2]) //current > Max
+        if(m_speeds[0] > m_speeds[2]) //current > Max
         {
-            speeds[0] = speeds[2];
+            m_speeds[0] = m_speeds[2];
         }
     }
     //handle translation
     glm::vec3 newMV = m_forward;
-    //since forward vector is normalised timing it by m_speed will change its magnitude to the value of m_speed
-    newMV.x *= speeds[0]*_deltaTime;
-    newMV.y *= speeds[0]*_deltaTime;
-    newMV.z *= speeds[0]*_deltaTime;
+    //since forward vector is normalised timing it by speed will change its magnitude to the value of speed
+    newMV.x *= m_speeds[0]*_deltaTime;
+    newMV.y *= m_speeds[0]*_deltaTime;
+    newMV.z *= m_speeds[0]*_deltaTime;
     //add result to current position
     m_position+=newMV;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::Evade(float &_deltaTime, Ship *_curTgt, float &_navDist)
 {
     //Evade is called whenever the ship gets too close to another ship or asteroid
-    if(target == m_position) //special case when evasion is called for the first time
+    if(m_target == m_position) //special case when evasion is called for the first time
     {
         //generate a random point within weapons range from the ship
         do //we have to at least do it once
         {
-            target = RandCoords(m_position); //random coords relative to this position
+            m_target = RandCoords(m_position); //random coords relative to this position
         }
-        while(glm::dot(m_forward, target-m_position) > 0); //make sure the evasion point is not right in front of us
+        while(glm::dot(m_forward, m_target-m_position) > 0); //make sure the evasion point is not right in front of us
         //as this would not make sense and we would hit the objects we are trying to evade
         FollowTarget(_deltaTime);
     }
     else //if we already have a m_navpoint to follow
     {
-        if (_navDist <= actionDistances[0]) //reached evasion coords
+        if (_navDist <= m_actionDistances[0]) //reached evasion coords
         {
-            target = _curTgt->m_position; //set target position back to original ship target
-            shipStates = FOLLOW;
+            m_target = _curTgt->m_position; //set target position back to original ship target
+            m_shipStates = FOLLOW;
         }
-        else //still flying towards the m_navpoint
+        else //still flying towards the navpoint
         {
             FollowTarget(_deltaTime);
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::Patrol(float &_deltaTime, Ship *_curTgt, float &_tgtDist, float &_navDist)
 {
     //Patrol is called whenever there are no enemies within active detection range
     if(_curTgt!=nullptr) //sanity check
     {
-        if(_tgtDist <= actionDistances[2]) //target in range
+        if(_tgtDist <= m_actionDistances[2]) //target in range
         {
-            target = _curTgt->m_position; //set target as enemy ship position
-            shipStates = FOLLOW;
+            m_target = _curTgt->m_position; //set target as enemy ship position
+            m_shipStates = FOLLOW;
         }
         else //no targets in range but targets present beyond detection range
         {
             //in this case we ARE actually patrolling
-            if(_navDist < actionDistances[0]) //reached m_navpoint position
-            //also is run when patrol is called for the first time and m_navpoint(target) is set to current position
+            if(_navDist < m_actionDistances[0]) //reached m_navpoint position
+            //also is run when patrol is called for the first time and navpoint(target) is set to current position
             {
-                //generate position within active detection range to m_navpoint
-                target = RandCoords(m_navpoint);
+                //generate position within active detection range to navpoint
+                m_target = RandCoords(m_navpoint);
                 FollowTarget(_deltaTime);
             }
             else //already have coordinates to go to
@@ -110,93 +114,93 @@ void Ship::Patrol(float &_deltaTime, Ship *_curTgt, float &_tgtDist, float &_nav
     //unlikely but possible scenario - when all enemy ships are destroyed at once
     {
         //perform partrol
-        if(_navDist <= actionDistances[0]) //reached target position
+        if(_navDist <= m_actionDistances[0]) //reached target position
         {
-            //generate position within active detection range to m_navpoint
-            target = RandCoords(m_navpoint);
+            //generate position within active detection range to navpoint
+            m_target = RandCoords(m_navpoint);
             FollowTarget(_deltaTime);
         }
-        else //already have a m_navpoint to follow
+        else //already have a navpoint to follow
         {
             FollowTarget(_deltaTime);
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::Follow(float &_deltaTime, Ship *_curTgt, float &_dist)
 {
     //Follow is called whenever there is a target within active detection range
-    if(_dist > actionDistances[2]) //enemy escaped from detection range
+    if(_dist > m_actionDistances[2]) //enemy escaped from detection range
     {
         //switch to patrol
         m_navpoint = m_position;
-        target = m_position;
-        shipStates = PATROL;
+        m_target = m_position;
+        m_shipStates = PATROL;
     }
     else //enemy still within ranges
     {
-        if(_dist <= actionDistances[1]) //enemy is within weapons range
+        if(_dist <= m_actionDistances[1]) //enemy is within weapons range
         {
             //switch m_navpoint to enemy position
-            target = _curTgt->m_position;
+            m_target = _curTgt->m_position;
             //still follow the enemy as BATTLE will only be called in the next frame
             FollowTarget(_deltaTime);
             //switch to battle state
-            shipStates = BATTLE;
+            m_shipStates = BATTLE;
         }
         else //enemy is outside weapons range
         {
             //follow the enemy
-            target = _curTgt->m_position;
+            m_target = _curTgt->m_position;
             FollowTarget(_deltaTime);
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::Battle(float &_deltaTime, Ship *_curTgt, float &_dist)
 {
     //Battle is called whenever enemy is within weapons range
-    if (_dist <= actionDistances[1]) //if enemy is still within weapons range
+    if (_dist <= m_actionDistances[1]) //if enemy is still within weapons range
     {
-        if(_dist <= actionDistances[0]) //if enemy is too close
+        if(_dist <= m_actionDistances[0]) //if enemy is too close
         {
-            if(target != m_position && shipStates != EVADE) //no evasion activated yet
+            if(m_target != m_position && m_shipStates != EVADE) //no evasion activated yet
             {
-                fireWeapons = false;
-                target = m_position;
-                shipStates = EVADE;
+                m_fireWeapons = false;
+                m_target = m_position;
+                m_shipStates = EVADE;
             }
         }
         else //enemy is just withing weapons range
         {
-            target = _curTgt->m_position;
-            if (glm::dot(m_forward,glm::normalize(target-m_position)) > 0.8f) //if enemy is in front
+            m_target = _curTgt->m_position;
+            if (glm::dot(m_forward,glm::normalize(m_target-m_position)) > 0.8f) //if enemy is in front
             {
-                fireWeapons = true;
+                m_fireWeapons = true;
             }
             else //enemy is not in front
             {
-                fireWeapons = false;
+                m_fireWeapons = false;
             }
             FollowTarget(_deltaTime);
         }
     }
     else //enemy is not withing weapons range anymore
     {
-        fireWeapons = false;
-        if(_dist >= actionDistances[2]) //if target is out of detection range (might happen after enemy destruction and respawn)
+        m_fireWeapons = false;
+        if(_dist >= m_actionDistances[2]) //if target is out of detection range (might happen after enemy destruction and respawn)
         {
-            target = m_position;
+            m_target = m_position;
             m_navpoint = m_position;
-            shipStates = PATROL;
+            m_shipStates = PATROL;
         }
         else //enemy is within detection range
         {
-            shipStates = FOLLOW;
+            m_shipStates = FOLLOW;
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::FireBullet(glm::vec3 &_curTgt, float &_curTime)
 {
     //handle rotation of bullet
@@ -214,26 +218,26 @@ void Ship::FireBullet(glm::vec3 &_curTgt, float &_curTime)
     newBullet.m_tag = m_tag; //the same as this ship's tag
     newBullet.m_forward = m_forward; //the same as this ship's forward
     newBullet.m_dieTime = _curTime+5.0f;
-    if(isPlayer == true) //for player bullets
+    if(m_isPlayer == true) //for player bullets
     {
         newBullet.m_tag = PLAYER;
     }
-    allBuls->push_back(newBullet); //add this bullet to the all bullet vector
+    m_allBuls->push_back(newBullet); //add this bullet to the all bullet vector
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 glm::vec3 Ship::RandCoords(glm::vec3 _refPos)
 {
     glm::vec3 randCoord;
-    randCoord.x = _refPos.x + (rand()%(int)(actionDistances[1]*2) - actionDistances[1]);
-    randCoord.y = _refPos.y + (rand()%(int)(actionDistances[1]*2) - actionDistances[1]);
-    randCoord.z = _refPos.z + (rand()%(int)(actionDistances[1]*2) - actionDistances[1]);
+    randCoord.x = _refPos.x + (rand()%(int)(m_actionDistances[1]*2) - m_actionDistances[1]);
+    randCoord.y = _refPos.y + (rand()%(int)(m_actionDistances[1]*2) - m_actionDistances[1]);
+    randCoord.z = _refPos.z + (rand()%(int)(m_actionDistances[1]*2) - m_actionDistances[1]);
     return randCoord;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::FlyShip(float &_deltaTime, float &_curTime, float &_score)
 {
     //The main controller for the ship object
-    SetCurRotSpd(); //update rotation m_speed
+    SetCurRotSpd(); //update rotation speed
     //determine enemy tags based on current tag
     objTag tgtTag[2];
     switch(m_tag)
@@ -264,45 +268,45 @@ void Ship::FlyShip(float &_deltaTime, float &_curTime, float &_score)
     Ship *tmpShEn = nullptr;
     Ship *tmpSh = nullptr;
     objTag tempTags[2] = {m_tag, m_tag}; //only necessary for allies
-    tmpShEn = GetNearestTgtObj(allShips, tgtTag, false); //closest enemy
+    tmpShEn = GetNearestTgtObj(m_allShips, tgtTag, false); //closest enemy
     objTag noneTemp[] = {NONE, NONE}; //only necessary for asteroids
-    tmpObj = GetNearestTgtObj(allGOs, noneTemp, false); //closest asteroid
-    tmpSh = GetNearestTgtObj(allShips, tempTags, false); //closest ally
-    tmpBullet = GetNearestTgtObj(allBuls, tgtTag, true); //closest enemy bullet
+    tmpObj = GetNearestTgtObj(m_allGOs, noneTemp, false); //closest asteroid
+    tmpSh = GetNearestTgtObj(m_allShips, tempTags, false); //closest ally
+    tmpBullet = GetNearestTgtObj(m_allBuls, tgtTag, true); //closest enemy bullet
 
-    //for ship actionDistances:
+    //for ship m_actionDistances:
     //0 = min, 1 = attack, 2 = active
 
     //detect and handle any ocurring collisions
     CollisionDetect(tmpObj, tmpShEn, tmpSh, tmpBullet, _deltaTime, _score);
 
-    if(isPlayer == false) //NPC ship
+    if(m_toggleAI == true) //NPC ship
     {
         //store this in a variable to avoid multiple duplicate calculations
         float tgtDistance = glm::distance(m_position, tmpShEn->m_position);
         //if any of the closest objects are too close
-        if(tgtDistance <= actionDistances[0]||
-           glm::distance(m_position, tmpObj->m_position) <= actionDistances[0]||
-           glm::distance(m_position, tmpSh->m_position) <= actionDistances[0])
+        if(tgtDistance <= m_actionDistances[0]||
+           glm::distance(m_position, tmpObj->m_position) <= m_actionDistances[0]||
+           glm::distance(m_position, tmpSh->m_position) <= m_actionDistances[0])
         {
-            if(target != m_position && shipStates != EVADE) //if no evasion active yet
+            if(m_target != m_position && m_shipStates != EVADE) //if no evasion active yet
             {
-                target = m_position;
-                shipStates = EVADE;
+                m_target = m_position;
+                m_shipStates = EVADE;
             }
             Evade(_deltaTime, tmpShEn, tgtDistance);
         }
 
         //store this in a variable to avoid multiple duplicate calculations
-        float navDistance = glm::distance(m_position, target);
+        float navDistance = glm::distance(m_position, m_target);
         //perform actions based on current ship state
-        switch(shipStates)
+        switch(m_shipStates)
         {
             case IDLE: //no states set yet
             {
                 m_navpoint = m_position;
-                target = m_position;
-                shipStates = PATROL;
+                m_target = m_position;
+                m_shipStates = PATROL;
                 break;
             }
             case PATROL: //no target, wander around a nav point
@@ -329,67 +333,67 @@ void Ship::FlyShip(float &_deltaTime, float &_curTime, float &_score)
     }
     else //if this ship is a player
     {
-        //first check if m_speed is correct
-        if(speeds[0] > speeds[2])
+        //first check if speed is correct
+        if(m_speeds[0] > m_speeds[2])
         {
-            speeds[0] = speeds[2];
+            m_speeds[0] = m_speeds[2];
         }
-        if(speeds[0] < 0)
+        if(m_speeds[0] < 0)
         {
-            speeds[0] = 0;
+            m_speeds[0] = 0;
         }
         //make player ship just follow the target (which is camera direction)
         FollowTarget(_deltaTime);
     }
     //weapon fire control is the same for every ship
-    if(fireWeapons == true)
+    if(m_fireWeapons == true)
     {
-        if(_curTime >= nextFire) //if end of delay
+        if(_curTime >= m_nextFire) //if end of delay
         {
             //launch a bullet
-            FireBullet(target, _curTime);
+            FireBullet(m_target, _curTime);
             //update delay
-            nextFire = _curTime + fireDelay;
+            m_nextFire = _curTime + m_fireDelay;
         }
     }
 }
-
-void Ship::CollisionDetect(GameObject *refObj, Ship *refShipEn, Ship *refShipAl, GameObject *refBullet, float &_deltaTime, float &_score)
+//----------------------------------------------------------------------------------------------------------------------
+void Ship::CollisionDetect(GameObject *_refObj, Ship *_refShipEn, Ship *_refShipAl, GameObject *_refBullet, float &_deltaTime, float &_score)
 {
     //regenerate shield if less than max
-    if(m_curShield < maxShield)
+    if(m_curShield < m_maxShield)
     {
-        m_curShield+=regenSpeed*_deltaTime;
+        m_curShield+=m_regenSpeed*_deltaTime;
     }
-    if(refObj != nullptr) //for collision with an Asteroid
+    if(_refObj != nullptr) //for collision with an Asteroid
     {
         //in terms of geometry asteroids are slightly bigger than ships, so use half their size to adjust distance check
-        if(glm::distance(refObj->m_position, m_position)-refObj->m_size/2 <= m_collisionDist)
+        if(glm::distance(_refObj->m_position, m_position)-_refObj->m_size/2 <= m_collisionDist)
         {
             DamageShip(40.0f*_deltaTime, 50.0f*_deltaTime);
         }
     }
-    if(refShipEn != nullptr) //for collision with Enemy Ship
+    if(_refShipEn != nullptr) //for collision with Enemy Ship
     {
-        if(glm::distance(refShipEn->m_position, m_position) <= m_collisionDist)
+        if(glm::distance(_refShipEn->m_position, m_position) <= m_collisionDist)
         {
             DamageShip(50.0f*_deltaTime, 70.0f*_deltaTime);
         }
     }
-    if(refShipAl != nullptr) //for collision with Ally Ship
+    if(_refShipAl != nullptr) //for collision with Ally Ship
     {
-        if(glm::distance(refShipAl->m_position, m_position) <= m_collisionDist)
+        if(glm::distance(_refShipAl->m_position, m_position) <= m_collisionDist)
         {
             DamageShip(50.0f*_deltaTime, 70.0f*_deltaTime);
         }
     }
-    if(refBullet != nullptr) //for collision with a bullet
+    if(_refBullet != nullptr) //for collision with a bullet
     {
         //bullets are smaller than ships, so adjust distance check by reducing collision distance half its size
-        if(glm::distance(refBullet->m_position, m_position) <= m_collisionDist/2)
+        if(glm::distance(_refBullet->m_position, m_position) <= m_collisionDist/2)
         {
             DamageShip(15.0f, 10.0f);
-            if(refBullet->m_tag == PLAYER) //if a bullet was shot by player
+            if(_refBullet->m_tag == PLAYER) //if a bullet was shot by player
             {
                 //add hit m_score to player
                 _score+=0.2f;
@@ -402,7 +406,7 @@ void Ship::CollisionDetect(GameObject *refObj, Ship *refShipEn, Ship *refShipAl,
         }
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::DamageShip(float _sDmg, float _hDmg)
 {
     //if shields are still online
@@ -426,23 +430,23 @@ void Ship::DamageShip(float _sDmg, float _hDmg)
         m_curHealth -= _hDmg;
     }
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void Ship::resetShip()
 {
     //create a variable to avoid duplicate expressions
     glm::vec3 zeroVec = {0,0,0};
     //set everything to zero, switch to Idle and turn off weapons
     m_rotation = zeroVec;
-    speeds[0] = 0.0f;
-    speeds[4] = 0.0f;
-    target = zeroVec;
-    shipStates = IDLE;
-    fireWeapons = false;
+    m_speeds[0] = 0.0f;
+    m_speeds[4] = 0.0f;
+    m_target = zeroVec;
+    m_shipStates = IDLE;
+    m_fireWeapons = false;
     //reset shields and health
-    m_curHealth = maxHealth;
-    m_curShield = maxShield;
+    m_curHealth = m_maxHealth;
+    m_curShield = m_maxShield;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 template<typename T1> T1* Ship::GetNearestTgtObj (std::vector<T1>* _allObjs, objTag tagg[], bool _isBul)
 {
     T1 *closestSH; //store a pointer closest object
@@ -457,14 +461,17 @@ template<typename T1> T1* Ship::GetNearestTgtObj (std::vector<T1>* _allObjs, obj
         for(int i=0; i<arrSize; ++i)
         {
             //if object's tag is one of those we are looking for and if it's closer than previous closest one
-            if((_allObjs->at(i).m_tag == tagg[0] || _allObjs->at(i).m_tag == tagg[1])
+            if((_allObjs->at(i).m_tag == tagg[0] || _allObjs->at(i).m_tag == tagg[1] || _allObjs->at(i).m_tag == PLAYER)
                 && glm::distance(m_position, _allObjs->at(i).m_position) < minDist)
             {
-                if(_isBul == true) //bullets will never be the same as calling object, this might m_speed things up
+                if(_isBul == true) //bullets will never be the same as calling object, this might speed things up
                     //when we have many bullets in the scene (can be up to several thousands)
                 {
-                        closestSH = &(_allObjs->at(i));
-                        minDist = glm::distance(m_position, _allObjs->at(i).m_position);
+                        if(m_isPlayer == false)
+                        {
+                          closestSH = &(_allObjs->at(i));
+                          minDist = glm::distance(m_position, _allObjs->at(i).m_position);
+                        }
                 }
                 else //even though we will have to perform this check for all non-bullet objects as well,
                     //their number is much smaller that that of the bullets (potentially)
@@ -481,8 +488,8 @@ template<typename T1> T1* Ship::GetNearestTgtObj (std::vector<T1>* _allObjs, obj
     }
     return nullptr;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 int Ship::GetCurrentSpeed()
 {
-  return (int)(speeds[0]*100);
+  return (int)(m_speeds[0]*100);
 }

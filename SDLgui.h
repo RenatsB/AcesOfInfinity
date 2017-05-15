@@ -35,6 +35,8 @@ public:
     int InitGUI();
     /// \brief method for releasing unused surfaces
     int freeSurfaces();
+    /// \brief method for cleaning up texture occupied memory
+    void deleteAllTextures();
     /// \brief method to create all surfaces and textures for gui
     int CreateGUIObjects();
     /// \brief method to draw text on screen
@@ -54,6 +56,8 @@ public:
     /// \param[in] _sp player shield
     void updateGUIData(const float &_score, const float &_speed, const float &_hp, const float &_sp);
     /// \brief method for drawing all numerical player stats on screen
+    /// \param[in] _x x coordinates to draw to
+    /// \param[in] _y y coordinates to draw to
     void DrawAllStats(int _x, int _y);
 private:
     /// \brief all texture IDs
@@ -87,8 +91,6 @@ private:
     int m_curHealth;
     /// \brief internal storage of player shield
     int m_curShield;
-    /// \brief internal storage of scene name
-    std::string m_sceneName;
     /// \brief main menu buttons (3 states per button)
     SDL_Surface* m_mainMenu[9]; //3 buttons, 3 surfaces per button (text only)
     /// \brief informational text

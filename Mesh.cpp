@@ -1,3 +1,8 @@
+///
+/// @file Mesh.cpp
+/// @brief This module contains all geometry drawing functions
+/// The list includes: bullet, shipTest, ship1, ship2, ship3, asteroid
+
 #include "Mesh.h"
 #include <iostream>
 #include <cmath>

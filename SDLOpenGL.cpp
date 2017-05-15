@@ -1,3 +1,7 @@
+///
+/// @file SDLOpenGL.cpp
+/// @brief This module handles SDL Opengl context creation and management
+
 #include "SDLOpenGL.h"
 #include <iostream>
 
@@ -14,7 +18,7 @@ SDLOpenGL::SDLOpenGL(const std::string &_name, int _x, int _y,int _width, int _h
   std::cout<<"after init \n";
 
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLOpenGL::init()
 {
   if(SDL_Init(SDL_INIT_EVERYTHING) < 0)
@@ -34,7 +38,7 @@ void SDLOpenGL::init()
   createGLContext();
 
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLOpenGL::createGLContext()
 {
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
@@ -49,7 +53,7 @@ void SDLOpenGL::createGLContext()
 
   m_glContext=SDL_GL_CreateContext(m_window);
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void SDLOpenGL::ErrorExit(const std::string &_msg) const
 {
   std::cerr<<_msg<<std::endl;
