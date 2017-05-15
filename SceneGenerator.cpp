@@ -1,6 +1,6 @@
 #include "SceneGenerator.h"
 #include <iostream>
-#include "mesh.h"
+#include "Mesh.h"
 #include "Camera.h"
 
 void SceneGenerator::generateScene()
@@ -85,7 +85,7 @@ void SceneGenerator::generateScene()
             m_allShipObjects.push_back(AIship);
         }
         printf("\nDone creating ships!\n");
-        printf("\nShip count: %d\n",m_allShipObjects.size());
+        printf("\nShip count: %d\n",(int)m_allShipObjects.size());
         m_redoGeneration = false;
     }
     else //prevents scene from getting created if it has wrong size
@@ -173,7 +173,7 @@ void SceneGenerator::checkForDead(float &_curTime)
     {
         if(i==0) //if player
         {
-            if(m_allShipObjects.at(i).curHealth <= 0) //no health = dead
+            if(m_allShipObjects.at(i).m_curHealth <= 0) //no health = dead
             {
                 m_redoGeneration = true;
             }
@@ -187,7 +187,7 @@ void SceneGenerator::checkForDead(float &_curTime)
             int tempSpawnNum = rand()%m_allSpawnerPositions.size();//prevent duplicate calculations
             //each dead ship will appear at a random spawner position. This prevents from "camping"
             //which in terms of simple AI is likely to happen
-            if(m_allShipObjects.at(i).curHealth <= 0) //no health = dead
+            if(m_allShipObjects.at(i).m_curHealth <= 0) //no health = dead
             {
                 m_allShipObjects.at(i).m_position = m_allSpawnerPositions.at(tempSpawnNum); //move to spawner
                 m_allShipObjects.at(i).resetShip(); //reset
@@ -213,6 +213,18 @@ void SceneGenerator::draw(Camera &_cam)
 {
   //Main draw function.
   //since it has to deal a lot with all scene objects, it was added to this particular class instead of any other
+  if(m_wireFrame == true)
+  {
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
+  }
+  else
+  {
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+  }
   glClearColor(m_BGcolor.x,m_BGcolor.y,m_BGcolor.z,1.0); //fill background with BGcolor
   glm::vec3 red(1,0,0);
   glm::vec3 green(0,1,0);

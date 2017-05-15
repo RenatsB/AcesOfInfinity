@@ -52,7 +52,7 @@ int main()
     bool exitStatus = false;
 
     //next is a variable for controlling which type of thing to run
-    //0 = mainMenu, 1 = helpMenu, 2 = mainGameLoop, 3 = jumpScreen
+    //0 = m_mainMenu, 1 = m_helpMenu, 2 = mainGameLoop, 3 = jumpScreen
     int gameState = 0;
     //button states
     int buttonStates[3] = {0,0,0};
@@ -64,13 +64,13 @@ int main()
         menuButtons[i].h = 200;
         menuButtons[i].y = 80+(200*i)+(20*i);
     }
-    SDL_Rect textPositions[12];
+    SDL_Rect textPositions[16];
     for(int i =0; i<10; ++i)
     {
         textPositions[i].x = 400;
         textPositions[i].w = 800;
-        textPositions[i].h = 70;
-        textPositions[i].y = 5+(70*i)+(10*i);
+        textPositions[i].h = 50;
+        textPositions[i].y = 70+(50*i)+(10*i);
     }
     textPositions[10].x = 400;
     textPositions[10].w = 800;
@@ -81,6 +81,18 @@ int main()
     textPositions[11].w = 800;
     textPositions[11].h = 90;
     textPositions[11].y = 540;
+    {
+      int temp = 0;
+      for(int i = 12; i<16; ++i)
+      {
+        textPositions[i].x = 20;
+        textPositions[i].w = 80;
+        textPositions[i].h = 20;
+        textPositions[i].y = 20+(30*temp);
+        ++temp;
+      }
+    }
+    //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     //create and load gui
     SDLgui menuControl;
     if(menuControl.InitGUI() == 1)
@@ -106,7 +118,7 @@ int main()
     bool fireWeapons = false;
     int mouseX = 45;
     int mouseY = 25;
-    //store player score in here
+    //store player m_score in here
     float playerScore = 0.0f;
 
     gameStartT = std::chrono::system_clock::now();
@@ -144,17 +156,19 @@ int main()
                         // make OpenGL draw wireframe
                     case SDLK_w :
                     {
-                        glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+                        /*glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
                         glDisable(GL_LIGHTING);
-                        glDisable(GL_LIGHT0);
+                        glDisable(GL_LIGHT0);*/
+                        mainController.m_wireFrame = true;
                         break;
                     }
                         // make OpenGL draw solid
                     case SDLK_s :
                     {
-                        glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+                        /*glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
                         glEnable(GL_LIGHTING);
-                        glEnable(GL_LIGHT0);
+                        glEnable(GL_LIGHT0);*/
+                        mainController.m_wireFrame = false;
                         break;
                     }
                     case SDLK_LSHIFT :
@@ -262,8 +276,10 @@ int main()
         mainCamera.m_oldZoom = mouseY;
 
         if(gameState != 2)
+        {
             glClearColor(0.0f,0.0f,0.0f,1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        }
         switch(gameState)
         {
         case 0 :
@@ -287,6 +303,18 @@ int main()
             {
                 menuControl.drawButton(menuButtons[i], i*3, buttonStates[i]);
             }
+            if(mainController.m_wireFrame == true)
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glDisable(GL_LIGHTING);
+              glDisable(GL_LIGHT0);
+            }
+            else
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+              glEnable(GL_LIGHTING);
+              glEnable(GL_LIGHT0);
+            }
             win.swapWindow();
             if(buttonStates[0] == 2)
             {
@@ -295,6 +323,7 @@ int main()
                 buttonStates[2] = 0;
                 glEnable(GL_LIGHTING);
                 glEnable(GL_LIGHT0);
+                glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
                 mainController.generateScene();
                 gameState = 2;
             }
@@ -313,9 +342,21 @@ int main()
         }
         case 1 :
         {
-            for(int i =0; i<10; ++i)
+            for(int i = 0; i<10; ++i) //0-9 will be 10 elements but draws only 9???
             {
-                menuControl.drawText(textPositions[i], i);
+                menuControl.drawText(textPositions[i], i+10);
+            }
+            if(mainController.m_wireFrame == true)
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glDisable(GL_LIGHTING);
+              glDisable(GL_LIGHT0);
+            }
+            else
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+              glEnable(GL_LIGHTING);
+              glEnable(GL_LIGHT0);
             }
             win.swapWindow();
             break;
@@ -349,19 +390,41 @@ int main()
                 {
                     mainController.m_allBullets.at(i).moveObject(bulletSpeed);
                 }
+                if(mainController.m_wireFrame == true)
+                {
+                  glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+                  glDisable(GL_LIGHTING);
+                  glDisable(GL_LIGHT0);
+                }
+                else
+                {
+                  glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+                  glEnable(GL_LIGHTING);
+                  glEnable(GL_LIGHT0);
+                }
                 //update camera vectors
                 updateCam(mainCamera);
+
             }
+            menuControl.updateGUIData(playerScore, mainController.m_allShipObjects.at(0).GetCurrentSpeed(),
+                                      mainController.m_allShipObjects.at(0).m_curHealth, mainController.m_allShipObjects.at(0).m_curShield);
             // draw scene
             mainController.draw(mainCamera);
+            for(int i = 0; i<4; ++i)
+            {
+                menuControl.drawText(textPositions[i+12], i+22);
+            }
+            menuControl.DrawAllStats(100, 20);
             // update the buffer so we can see what we have drawn.
             win.swapWindow();
             break;
         }
         case 3 :
         {
-            menuControl.drawText(textPositions[10], 10);
-            menuControl.drawText(textPositions[11], 11);
+          glClearColor(0.0f,0.0f,0.0f,1.0f);
+          glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            menuControl.drawText(textPositions[10], 20);
+            menuControl.drawText(textPositions[11], 21);
             win.swapWindow();
             mainController.flushObjectData();
             printf("\nHull Integrity Critical! Performing Emergency Jump!\n");
@@ -369,6 +432,18 @@ int main()
             mainController.generateScene();
             glClearColor(mainController.m_BGcolor.x,mainController.m_BGcolor.y,mainController.m_BGcolor.z,1.0);
             gameState = 2;
+            if(mainController.m_wireFrame == true)
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+              glDisable(GL_LIGHTING);
+              glDisable(GL_LIGHT0);
+            }
+            else
+            {
+              glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+              glEnable(GL_LIGHTING);
+              glEnable(GL_LIGHT0);
+            }
             break;
         }
         }

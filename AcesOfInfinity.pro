@@ -59,6 +59,7 @@ LIBS+=$$system(sdl2-config --libs)
 LIBS += -L/usr/local/lib
 macx:LIBS+= -framework OpenGL
 macx:QMAKE_CXXFLAGS+= -arch x86_64
+LIBS+=-lSDL2_ttf
 }
 
 
@@ -73,7 +74,3 @@ LIBS += -lOpenGL32
 CONFIG+=console
 DLLDESTDIR
 }
-
-HEADERS +=
-
-SOURCES +=

@@ -1,7 +1,7 @@
 #ifndef SCENEGENERATOR_H
 #define SCENEGENERATOR_H
 #include "NameGenerator.h"
-#include "ship.h"
+#include "Ship.h"
 #include "Camera.h"
 
 /// \brief A module for generating all ingame data
@@ -33,6 +33,8 @@ public:
     glm::vec3 m_lightDir;
     /// \brief boolean for generation control
     bool m_redoGeneration = false;
+    /// \brief boolen for switching between wireframe and solid
+    bool m_wireFrame = false;
 
     /// \brief method for generating the scene
     void generateScene();

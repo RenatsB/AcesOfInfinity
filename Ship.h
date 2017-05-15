@@ -10,6 +10,49 @@
 
 class Ship: public GameObject
 {
+public:
+    Ship()=default;
+    Ship(glm::vec3 _pos, glm::vec3 &_rot, objTag _tag, bool _isPlr,
+         std::vector<GameObject> *_allGOS, std::vector<Ship> *_allShips, std::vector<GameObject> *_allBullets)
+    {
+        m_position = _pos;
+        m_rotation = _rot;
+        m_tag = _tag;
+        isPlayer = _isPlr;
+        allGOs = _allGOS;
+        allShips = _allShips;
+        allBuls = _allBullets;
+    }
+    bool isPlayer = false;
+    bool autopilotOn = false;
+    glm::vec3 target = {0,0,0};
+    float m_curHealth = 100.0f;
+    float maxHealth = 100.0f;
+    float m_curShield = 120.0f;
+    float maxShield = 120.0f;
+    float regenSpeed = 2.5f;
+
+    bool fireWeapons = false;
+    float fireDelay = 0.15f;
+    float nextFire = 0.0f;
+
+    void IncreaseSpeed(float _value);
+
+    void FireBullet(glm::vec3 &_curTgt, float &_curTime);
+
+    void FlyShip(float &_deltaTime, float &_curTime, float &_score);
+
+    void ControlShip(float &_deltaTime, bool &_isFire, bool &_isAccel, bool &_isFollow);
+
+    void CollisionDetect(GameObject *refObj, Ship *refShipEn, Ship *refShipAl, GameObject *refBullet, float &_deltaTime, float &_score);
+
+    void DamageShip(float _sDmg, float _hDmg);
+
+    void resetShip();
+
+    int GetCurrentSpeed();
+
+    template<typename T1> T1* GetNearestTgtObj (std::vector<T1>* _allObjs, objTag tagg[], bool _isBul);
 private:
     float m_collisionDist = 2.0f;
 
@@ -37,46 +80,6 @@ private:
     void Battle(float &_deltaTime, Ship *_curTgt, float &_dist);
 
     glm::vec3 RandCoords(glm::vec3 _refPos);
-public:
-    Ship()=default;
-    Ship(glm::vec3 _pos, glm::vec3 &_rot, objTag _tag, bool _isPlr,
-         std::vector<GameObject> *_allGOS, std::vector<Ship> *_allShips, std::vector<GameObject> *_allBullets)
-    {
-        m_position = _pos;
-        m_rotation = _rot;
-        m_tag = _tag;
-        isPlayer = _isPlr;
-        allGOs = _allGOS;
-        allShips = _allShips;
-        allBuls = _allBullets;
-    }
-    bool isPlayer = false;
-    glm::vec3 target = {0,0,0};
-    float curHealth = 100.0f;
-    float maxHealth = 100.0f;
-    float curShield = 120.0f;
-    float maxShield = 120.0f;
-    float regenSpeed = 2.5f;
-
-    bool fireWeapons = false;
-    float fireDelay = 0.15f;
-    float nextFire = 0.0f;
-
-    void IncreaseSpeed(float _value);
-
-    void FireBullet(glm::vec3 &_curTgt, float &_curTime);
-
-    void FlyShip(float &_deltaTime, float &_curTime, float &_score);
-
-    void ControlShip(float &_deltaTime, bool &_isFire, bool &_isAccel, bool &_isFollow);
-
-    void CollisionDetect(GameObject *refObj, Ship *refShipEn, Ship *refShipAl, GameObject *refBullet, float &_deltaTime, float &_score);
-
-    void DamageShip(float _sDmg, float _hDmg);
-
-    void resetShip();
-
-    template<typename T1> T1* GetNearestTgtObj (std::vector<T1>* _allObjs, objTag tagg[], bool _isBul);
 }; //end of class
 
 #endif // SHIP_H

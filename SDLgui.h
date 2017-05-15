@@ -17,19 +17,19 @@
 #include <string>
 #include <sstream>
 
-/// \brief Font and gui handler
+/// \brief m_font and gui handler
 /// \author Renats Bikmajevs
 
 /// \class SDLgui
-/// \brief Font and gui handler based on SDL2 and openGL
+/// \brief m_font and gui handler based on SDL2 and openGL
 
 class SDLgui
 {
 public:
     /// \brief default ctor
     SDLgui()=default;
-    /// \brief size of the font
-    int fontsize = 14;
+    /// \brief size of the m_font
+    int fontsize = 76;
 
     /// \brief method for initialization
     int InitGUI();
@@ -49,51 +49,53 @@ public:
     /// \brief update object data
     /// \param[in] _sceneName name of the current scene
     /// \param[in] _score player score
-    /// \param[in] _speed player ship's speed
+    /// \param[in] _speed player speed
     /// \param[in] _hp player health
     /// \param[in] _sp player shield
-    void updateGUIData(const std::string &_sceneName, const float &_score, const float &_speed, const float &_hp, const float &_sp);
+    void updateGUIData(const float &_score, const float &_speed, const float &_hp, const float &_sp);
+    /// \brief method for drawing all numerical player stats on screen
+    void DrawAllStats(int _x, int _y);
 private:
     /// \brief all texture IDs
-    GLuint *TextureIDs = new GLuint[23];
+    GLuint *m_TextureIDs = new GLuint[35];
     /// \brief True Type Font in use
-    TTF_Font *font;
+    TTF_Font *m_font;
     /// \brief main colour of the button font
-    SDL_Color fontMainColor = {255,255,255,255};
+    SDL_Color m_fontMainColor = {255,255,255,255};
     /// \brief hover colour of the button font
-    SDL_Color fontHoverColor = {244, 232, 66,255};
+    SDL_Color m_fontHoverColor = {244, 232, 66,255};
     /// \brief pressed colour of the button font
-    SDL_Color fontPressedColor = {0,0,0,255};
+    SDL_Color m_fontPressedColor = {0,0,0,255};
     /// \brief main colour of the button background
-    SDL_Color buttonMainColor = {0, 106, 255,255};
+    //SDL_Color m_buttonMainColor = {0, 106, 255,255};
     /// \brief hover colour of the button background
-    SDL_Color buttonHoverColor = {255, 253, 183,255};
+    //SDL_Color m_buttonHoverColor = {255, 253, 183,255};
     /// \brief pressed colour of the button background
-    SDL_Color buttonPressedColor = {255,255,255,255};
+    //SDL_Color m_buttonPressedColor = {255,255,255,255};
     /// \brief button text and info text labels
-    const char* labels[19] = {"Play","Controls","Exit", "RMB+move = Orbit Camera","LMB+move = Zoom","W = Wireframe","S = Solid",
+    const char* m_labels[19] = {"Play","Controls","Exit", "RMB+move = Orbit Camera","LMB+move = Zoom","W = Wireframe","S = Solid",
                             "Z = Toggle Autopilot","SPACE = Shoot Once","T = Toggle Weapons Fire","X = Switch Ship Type",
                            "LSHIFT = Accelerate","LCTRL = Decelerate","HULL INTEGRITY CRITICAL","Performing Emergency Jump",
                              "Score:","Shield:","Hull:","Speed:"};
-    /// \brief numbers to generate textures for
-    const char* numLabels[10] = {"1","2","3","4","5","6","7","8","9","0"};
+    /// \brief m_numbers to generate textures for
+    const char* m_numLabels[10] = {"1","2","3","4","5","6","7","8","9","0"};
     /// \brief internal storage of player score
-    int score;
+    int m_score;
     /// \brief internal storage of player speed
-    int speed;
+    int m_speed;
     /// \brief internal storage of player health
-    int curHealth;
+    int m_curHealth;
     /// \brief internal storage of player shield
-    int curShield;
+    int m_curShield;
     /// \brief internal storage of scene name
-    std::string sceneName;
+    std::string m_sceneName;
     /// \brief main menu buttons (3 states per button)
-    SDL_Surface* mainMenu[9]; //3 buttons, 3 surfaces per button (text only)
+    SDL_Surface* m_mainMenu[9]; //3 buttons, 3 surfaces per button (text only)
     /// \brief informational text
-    SDL_Surface* helpMenu[16]; //text only (1 state)
-    /// \brief numbers text
-    SDL_Surface* numbers[10]; //need to have a library of numbers to avoid re-creating textures each frame
-    //numbers used to display score, speed, shield and health
+    SDL_Surface* m_helpMenu[16]; //text only (1 state)
+    /// \brief m_numbers text
+    SDL_Surface* m_numbers[10]; //need to have a library of m_numbers to avoid re-creating textures each frame
+    //m_numbers used to display m_score, m_speed, shield and health
     //could use a full library of characters to also display an always random scene name, but that might be costly
 
     /// \brief method to convert int to string
@@ -103,6 +105,11 @@ private:
         buff<<_number;
         return buff.str();
     }
+    /// \brief method for drawing numerical stats of player on screen
+    /// \param[in] _value the value to print
+    /// \param[in] _x x coordinates on screen to draw to
+    /// \param[in] _y y coordinates on screen to draw to
+    void DrawNumbers(int &_value, int _x, int _y);
 }; //end of class
 
 #endif // SDLGUI_H

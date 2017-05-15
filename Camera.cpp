@@ -50,14 +50,14 @@ void Camera::camOrbit(int &_x, int &_y)
     m_rotX += (float) 0.5f * diffy;
     m_rotY += (float) 0.5f * diffx;
     //prevent from flipping camera
-    if(m_rotX > 85.0f)
+    /*if(m_rotX > 85.0f)
     {
         m_rotX = 85.0f;
     }
     if(m_rotX < -85.0f)
     {
         m_rotX = -85.0f;
-    }
+    }*/
     //make sure we're not dealing with overly big angles
     if(m_rotY > 360.0f)
     {
