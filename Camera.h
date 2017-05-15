@@ -5,6 +5,7 @@
 
 /// \brief A container for all camera related properties
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class Camera
 /// \brief A container of all camera and view related properties and methods

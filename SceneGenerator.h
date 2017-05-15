@@ -6,6 +6,7 @@
 
 /// \brief A module for generating all ingame data
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class SceneGenerator
 /// \brief Generates arrays of objects and randomizes scene properties

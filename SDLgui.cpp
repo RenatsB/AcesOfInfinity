@@ -1,5 +1,6 @@
 ///
 /// @file SDLgui.cpp
+/// @version 1.0
 /// @brief This module handles all text and GUI related methods
 
 #include "SDLgui.h"
@@ -284,9 +285,9 @@ void SDLgui::updateGUIData(const float &_score, const float &_speed, const float
 void SDLgui::DrawAllStats(int _x, int _y)
 {
   DrawNumbers(m_score, _x, _y);
-  DrawNumbers(m_speed, _x, _y+30);
+  DrawNumbers(m_curShield, _x, _y+30);
   DrawNumbers(m_curHealth, _x, _y+60);
-  DrawNumbers(m_curShield, _x, _y+90);
+  DrawNumbers(m_speed, _x, _y+90);
 }
 //----------------------------------------------------------------------------------------------------------------------
 void SDLgui::DrawNumbers(int &_value, int _x, int _y)

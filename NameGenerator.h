@@ -6,6 +6,7 @@
 
 /// \brief A module for generating random names
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class NameGenerator
 /// \brief Generates random names based on a set of rules

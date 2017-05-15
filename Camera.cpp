@@ -1,5 +1,6 @@
 ///
 /// @file Camera.cpp
+/// @version 1.0
 /// @brief This module handles all camera related methods
 /// including loading matrices and adjusting camera properties
 

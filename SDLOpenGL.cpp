@@ -1,5 +1,6 @@
 ///
 /// @file SDLOpenGL.cpp
+/// @version 1.0
 /// @brief This module handles SDL Opengl context creation and management
 
 #include "SDLOpenGL.h"

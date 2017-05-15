@@ -13,6 +13,7 @@
 
 /// \brief Geometry container
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class Mesh
 /// \brief A container of all game geometry (ABC)

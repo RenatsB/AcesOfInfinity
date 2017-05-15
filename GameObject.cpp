@@ -1,5 +1,6 @@
 ///
 /// @file GameObject.cpp
+/// @version 1.0
 /// @brief This module handles vector and rotation maths
 /// and contains all basic game object properties
 

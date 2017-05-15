@@ -1,5 +1,6 @@
 ///
 /// @file SceneGenerator.cpp
+/// @version 1.0
 /// @brief This module handles scene and game object generation
 
 #include "SceneGenerator.h"
@@ -180,11 +181,11 @@ void SceneGenerator::checkForDead(float &_curTime)
         {
             if(m_allShipObjects.at(i).m_curHealth <= 0) //no health = dead
             {
-                m_redoGeneration = true;
+              m_redoGeneration = true;
             }
             if(glm::length(m_allShipObjects.at(i).m_position) >= m_borderDist) //out of bounds = dead
             {
-                m_redoGeneration = true;
+              m_redoGeneration = true;
             }
         }
         else //not player

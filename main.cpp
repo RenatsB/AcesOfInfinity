@@ -1,5 +1,6 @@
 ///
 /// @file main.cpp
+/// @version 1.0
 /// @brief This is the main module of the game controlling every other module of the game
 /// Also handles all key and button input
 
@@ -28,13 +29,16 @@
 
 // function to init OpenGL scene
 void initOpenGL(Camera _cam);
+//----------------------------------------------------------------------------------------------------------------------
 // function to update camera matrices
 void updateCam(Camera _cam);
+//----------------------------------------------------------------------------------------------------------------------
 // function that creates a wait screen when travelling between scenes
 void waitScreen(Camera _cam);
+//----------------------------------------------------------------------------------------------------------------------
 // function to delay processec for a specified amount of seconds
 void wait ( int seconds );
-
+//----------------------------------------------------------------------------------------------------------------------
 int main()
 {
     // create our SDLWindow
@@ -66,10 +70,10 @@ int main()
     SDL_Rect menuButtons[3];
     for(int i =0; i<3; ++i)
     {
-        menuButtons[i].x = 400;
-        menuButtons[i].w = 800;
-        menuButtons[i].h = 200;
-        menuButtons[i].y = 80+(200*i)+(20*i);
+        menuButtons[i].x = 500;
+        menuButtons[i].w = 600;
+        menuButtons[i].h = 150;
+        menuButtons[i].y = 90+(210*i)+(20*i);
     }
     SDL_Rect textPositions[16];
     for(int i =0; i<10; ++i)
@@ -102,17 +106,17 @@ int main()
     //[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     //create and load gui
     SDLgui menuControl;
-    if(menuControl.InitGUI() == 1)
+    if(menuControl.InitGUI() == 1) //load up gui module
     {
         return EXIT_FAILURE;
     }
-    if(menuControl.CreateGUIObjects() == 1)
+    if(menuControl.CreateGUIObjects() == 1) //create all necessary textures
     {
         return EXIT_FAILURE;
     }
-    menuControl.freeSurfaces();
+    menuControl.freeSurfaces(); //free all surfaces
 
-    srand (static_cast <unsigned> (time(0)));
+    srand (static_cast <unsigned> (time(0))); //seed random with time
     std::chrono::system_clock::time_point gameStartT;
     std::chrono::system_clock::time_point gameCurrentT;
     float gameTime = 0;
@@ -176,14 +180,20 @@ int main()
                     }
                     case SDLK_LSHIFT :
                     {
-                        doAcceleration = true;
-                        doDeceleration = false;
+                        doAcceleration = !doAcceleration;
+                        if(doAcceleration == true)
+                        {
+                          doDeceleration = false;
+                        }
                         break;
                     }
                     case SDLK_LCTRL :
                     {
-                        doDeceleration = true;
-                        doAcceleration = false;
+                        doDeceleration = !doDeceleration;
+                        if(doDeceleration == true)
+                        {
+                          doAcceleration = false;
+                        }
                         break;
                     }
                     case SDLK_t :
@@ -219,22 +229,6 @@ int main()
                     } // end of key process
                 }
             } // end of keydown
-            case SDL_KEYUP :
-            {
-              switch( event.key.keysym.sym )
-              {
-              case SDLK_LSHIFT :
-              {
-                  doAcceleration = false;
-                  break;
-              }
-              case SDLK_LCTRL :
-              {
-                  doDeceleration = false;
-                  break;
-              }
-              }
-            }
             case SDL_MOUSEBUTTONDOWN :
             {
                 if(gameState != 2) //not main game loop
@@ -296,16 +290,16 @@ int main()
         mainCamera.m_oldY=mouseY;
         mainCamera.m_oldZoom = mouseY;
 
-        if(gameState != 2)
+        if(gameState != 2) //all not second game states have to call this, so we will call it once
         {
             glClearColor(0.0f,0.0f,0.0f,1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         }
-        switch(gameState)
+        switch(gameState) //game state switch
         {
-        case 0 :
+        case 0 : //this is a main menu
         {
-            for(int i =0; i<3; ++i)
+            for(int i =0; i<3; ++i) //check for mouse hover
             {
                 if((mouseX > menuButtons[i].x) && (mouseX < (menuButtons[i].x+menuButtons[i].w)) &&
                    (mouseY > menuButtons[i].y) && (mouseY < (menuButtons[i].y+menuButtons[i].h)))
@@ -320,24 +314,12 @@ int main()
                     buttonStates[i] = 0;
                 }
             }
-            for(int i =0; i<3; ++i)
+            for(int i =0; i<3; ++i) //draw buttons
             {
                 menuControl.drawButton(menuButtons[i], i*3, buttonStates[i]);
             }
-            if(mainController.m_wireFrame == true)
-            {
-              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-              glDisable(GL_LIGHTING);
-              glDisable(GL_LIGHT0);
-            }
-            else
-            {
-              glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-              glEnable(GL_LIGHTING);
-              glEnable(GL_LIGHT0);
-            }
             win.swapWindow();
-            if(buttonStates[0] == 2)
+            if(buttonStates[0] == 2) //check for "play" button press
             {
                 buttonStates[0] = 0;
                 buttonStates[1] = 0;
@@ -348,41 +330,29 @@ int main()
                 mainController.generateScene();
                 gameState = 2;
             }
-            if(buttonStates[1] == 2)
+            if(buttonStates[1] == 2) //check for "controls" button press
             {
                 buttonStates[0] = 0;
                 buttonStates[1] = 0;
                 buttonStates[2] = 0;
                 gameState = 1;
             }
-            if(buttonStates[2] == 2)
+            if(buttonStates[2] == 2) //check for "exit" button press
             {
                 exitStatus = true;
             }
             break;
         }
-        case 1 :
+        case 1 : //we are in "controls" section
         {
-            for(int i = 0; i<10; ++i) //0-9 will be 10 elements but draws only 9???
+            for(int i = 0; i<10; ++i) //draw all text
             {
                 menuControl.drawText(textPositions[i], i+10);
-            }
-            if(mainController.m_wireFrame == true)
-            {
-              glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-              glDisable(GL_LIGHTING);
-              glDisable(GL_LIGHT0);
-            }
-            else
-            {
-              glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-              glEnable(GL_LIGHTING);
-              glEnable(GL_LIGHT0);
             }
             win.swapWindow();
             break;
         }
-        case 2 :
+        case 2 : //we are in the scene
         {
             if(mainController.m_redoGeneration == true)
             {
@@ -401,6 +371,7 @@ int main()
                 //update all object data
                 for(int i=0; i<(int)mainController.m_allShipObjects.size(); ++i)
                 {
+                    //if it is a player - calculate camera direction vector and set as target
                     if(i == 0 && mainController.m_allShipObjects.at(0).m_toggleAI == false)
                     {
                         mainController.m_allShipObjects.at(0).m_fireWeapons = m_fireWeapons;
@@ -414,12 +385,12 @@ int main()
                 mainController.checkForDead(gameTime); //check and remove any "dead" bullets
                 //also "remove" and reset any dead ships, check if any ships out of bounds (kill and reset them if so)
 
-                float bulletSpeed = deltaTime*5.0f;
+                float bulletSpeed = deltaTime*5.0f; //avoid duplicate calculations
                 for(int i=0; i<(int)mainController.m_allBullets.size(); ++i)
                 {
-                    mainController.m_allBullets.at(i).moveObject(bulletSpeed);
+                    mainController.m_allBullets.at(i).moveObject(bulletSpeed); //move all bullets
                 }
-                if(mainController.m_wireFrame == true)
+                if(mainController.m_wireFrame == true) //make sure to use correct rendering type before drawing
                 {
                   glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
                   glDisable(GL_LIGHTING);
@@ -431,37 +402,38 @@ int main()
                   glEnable(GL_LIGHTING);
                   glEnable(GL_LIGHT0);
                 }
-                //update camera vectors
+                //update camera matrices
                 updateCam(mainCamera);
 
             }
+            //update SDLgui data
             menuControl.updateGUIData(playerScore, mainController.m_allShipObjects.at(0).GetCurrentSpeed(),
                                       mainController.m_allShipObjects.at(0).m_curHealth, mainController.m_allShipObjects.at(0).m_curShield);
             // draw scene
-            mainController.draw(mainCamera);
-            for(int i = 0; i<4; ++i)
+            mainController.draw(mainCamera); //draw all geometry
+            for(int i = 0; i<4; ++i) //draw all stat labels
             {
                 menuControl.drawText(textPositions[i+12], i+22);
             }
-            menuControl.DrawAllStats(100, 20);
+            menuControl.DrawAllStats(100, 20); //draw all stat numbers
             // update the buffer so we can see what we have drawn.
             win.swapWindow();
             break;
         }
-        case 3 :
+        case 3 : //we are on waiting screen
         {
           glClearColor(0.0f,0.0f,0.0f,1.0f);
           glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            menuControl.drawText(textPositions[10], 20);
-            menuControl.drawText(textPositions[11], 21);
+            menuControl.drawText(textPositions[10], 20); //draw text1
+            menuControl.drawText(textPositions[11], 21); //draw text2
             win.swapWindow();
-            mainController.flushObjectData();
+            mainController.flushObjectData(); //reset scene
             printf("\nHull Integrity Critical! Performing Emergency Jump!\n");
             wait(3);
             mainController.generateScene();
             glClearColor(mainController.m_BGcolor.x,mainController.m_BGcolor.y,mainController.m_BGcolor.z,1.0);
             gameState = 2;
-            if(mainController.m_wireFrame == true)
+            if(mainController.m_wireFrame == true) //make sure to use correct type of rendering
             {
               glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
               glDisable(GL_LIGHTING);
@@ -487,7 +459,7 @@ int main()
     menuControl.deleteAllTextures();
     return EXIT_SUCCESS;
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void initOpenGL(Camera _cam)
 {
   // this sets the background colour
@@ -504,13 +476,13 @@ void initOpenGL(Camera _cam)
   glEnable(GL_NORMALIZE);
 
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void updateCam(Camera _cam)
 {
     _cam.camPerspective();
     _cam.lookAtTgt();
 }
-
+//----------------------------------------------------------------------------------------------------------------------
 void wait ( int seconds )
 {
   clock_t endwait;

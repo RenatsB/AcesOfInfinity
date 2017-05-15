@@ -62,7 +62,6 @@ macx:QMAKE_CXXFLAGS+= -arch x86_64
 LIBS+=-lSDL2_ttf
 }
 
-
 win32 : {
 DEFINES+=_USE_MATH_DEFINES
 INCLUDEPATH += C:\PPP\SDL2-2.0.5\include

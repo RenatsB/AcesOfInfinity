@@ -1,5 +1,6 @@
 ///
 /// @file Ship.cpp
+/// @version 1.0
 /// @brief This module handles AI and movement of a ship object
 
 #include "Ship.h"
@@ -396,7 +397,7 @@ void Ship::CollisionDetect(GameObject *_refObj, Ship *_refShipEn, Ship *_refShip
             if(_refBullet->m_tag == PLAYER) //if a bullet was shot by player
             {
                 //add hit m_score to player
-                _score+=0.2f;
+                _score+=0.5f;
                 if(m_curHealth <= 0)
                 {
                     //add kill m_score to player
@@ -471,6 +472,14 @@ template<typename T1> T1* Ship::GetNearestTgtObj (std::vector<T1>* _allObjs, obj
                         {
                           closestSH = &(_allObjs->at(i));
                           minDist = glm::distance(m_position, _allObjs->at(i).m_position);
+                        }
+                        else
+                        {
+                          if(_allObjs->at(i).m_tag != PLAYER)
+                          {
+                            closestSH = &(_allObjs->at(i));
+                            minDist = glm::distance(m_position, _allObjs->at(i).m_position);
+                          }
                         }
                 }
                 else //even though we will have to perform this check for all non-bullet objects as well,

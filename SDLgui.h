@@ -19,6 +19,7 @@
 
 /// \brief m_font and gui handler
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class SDLgui
 /// \brief m_font and gui handler based on SDL2 and openGL

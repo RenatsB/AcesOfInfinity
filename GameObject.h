@@ -7,6 +7,7 @@
 
 /// \brief Main object class used in this game
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \brief Enumerated data type objTag is widely used in AI IFF and rendering
 typedef enum OBJTAG{TERRAN,PIRATE,ALIEN,PLAYER,NONE}objTag;

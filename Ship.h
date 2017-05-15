@@ -4,6 +4,7 @@
 
 /// \brief Main object (ship) handling module
 /// \author Renats Bikmajevs
+/// \version 1.0
 
 /// \class Ship
 /// \brief This class includes all properties and AI necessary for automatic event handling
