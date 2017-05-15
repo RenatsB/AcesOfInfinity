@@ -37,7 +37,7 @@ void updateCam(Camera _cam);
 void waitScreen(Camera _cam);
 //----------------------------------------------------------------------------------------------------------------------
 // function to delay processec for a specified amount of seconds
-void wait ( int seconds );
+void wait (const int seconds );
 //----------------------------------------------------------------------------------------------------------------------
 int main()
 {
@@ -483,7 +483,7 @@ void updateCam(Camera _cam)
     _cam.lookAtTgt();
 }
 //----------------------------------------------------------------------------------------------------------------------
-void wait ( int seconds )
+void wait (const int seconds )
 {
   clock_t endwait;
   endwait = clock () + seconds * CLOCKS_PER_SEC ;

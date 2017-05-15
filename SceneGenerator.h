@@ -45,7 +45,7 @@ public:
     void flushObjectData();
     /// \brief method for checking and removind any "dead" objects
     /// \param[in] _curTime current game time since start
-    void checkForDead(float &_curTime);
+    void checkForDead(const float &_curTime);
     /// \brief method for viewport adjustment and geometry drawing
     /// \param[in] _cam camera in use
     void draw(Camera &_cam);

@@ -172,7 +172,7 @@ void SceneGenerator::flushObjectData()
     printf("\nScene data reset!\n");
 }
 //----------------------------------------------------------------------------------------------------------------------
-void SceneGenerator::checkForDead(float &_curTime)
+void SceneGenerator::checkForDead(const float &_curTime)
 {
     //loop through all ships
     for(int i = 0; i<(int)m_allShipObjects.size(); ++i)

@@ -108,8 +108,8 @@ int SDLgui::CreateGUIObjects()
             glTexImage2D(GL_TEXTURE_2D, 0, m_mainMenu[i]->format->BytesPerPixel, m_mainMenu[i]->w, m_mainMenu[i]->h, 0, Mode, GL_UNSIGNED_BYTE, m_mainMenu[i]->pixels);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         }
     }
     for(int y = 0; y<hm; ++y)
@@ -145,8 +145,8 @@ int SDLgui::CreateGUIObjects()
             glTexImage2D(GL_TEXTURE_2D, 0, m_helpMenu[y]->format->BytesPerPixel, m_helpMenu[y]->w, m_helpMenu[y]->h, 0, Mode, GL_UNSIGNED_BYTE, m_helpMenu[y]->pixels);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         }
     }
@@ -183,8 +183,8 @@ int SDLgui::CreateGUIObjects()
             glTexImage2D(GL_TEXTURE_2D, 0, m_numbers[u]->format->BytesPerPixel, m_numbers[u]->w, m_numbers[u]->h, 0, Mode, GL_UNSIGNED_BYTE, m_numbers[u]->pixels);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         }
     }

@@ -52,10 +52,10 @@ public:
     void anglesToAxes();
     /// \brief method to translate a simple object (that has no "m_speed" variable)
     /// \param[in] _objSpeed m_speed of the object
-    void moveObject(float &_objSpeed);
+    void moveObject(const float &_objSpeed);
     /// \brief method to convert vec3 rotation (degrees) to a quaternion (radians)
     /// \param[in] _angles rotation angles
-    glm::quat anglesToQuat(glm::vec3 &_angles);
+    glm::quat anglesToQuat(const glm::vec3 &_angles);
     /// \brief method to calculate a quaternion rotation necessary to apply to current to get resulting rotation
     /// \param[in] _start initial rotation angles
     /// \param[in] _dest resulting rotation angles
@@ -64,7 +64,7 @@ public:
     /// \param[in] _q1 initial quaternion
     /// \param[in] _q2 end quaternion
     /// \param[in] _maxAngle current rotation change limitations (change rate)
-    glm::quat RotateTowards(glm::quat &_q1, glm::quat &_q2, float _maxAngle);
+    glm::quat RotateTowards(glm::quat &_q1, glm::quat &_q2, const float _maxAngle);
 }; //end of class
 
 #endif // GAMEOBJECT_H

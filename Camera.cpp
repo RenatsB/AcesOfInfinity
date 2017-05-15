@@ -29,14 +29,14 @@ void Camera::camPerspective()
     loadProjection(glm::perspective(m_fovy, m_aspect, m_zNear, m_zFar));
 }
 //----------------------------------------------------------------------------------------------------------------------
-void Camera::loadModelView(glm::mat4 _matrix)
+void Camera::loadModelView(const glm::mat4 _matrix)
 {
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glMultMatrixf((const float*)glm::value_ptr(_matrix));
 }
 //----------------------------------------------------------------------------------------------------------------------
-void Camera::loadProjection(glm::mat4 _matrix)
+void Camera::loadProjection(const glm::mat4 _matrix)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -44,7 +44,7 @@ void Camera::loadProjection(glm::mat4 _matrix)
     glMatrixMode(GL_MODELVIEW);
 }
 //----------------------------------------------------------------------------------------------------------------------
-void Camera::camOrbit(int &_x, int &_y)
+void Camera::camOrbit(const int &_x, const int &_y)
 {    
     int diffx=_x-m_oldX;
     int diffy=_y-m_oldY;
@@ -70,7 +70,7 @@ void Camera::camOrbit(int &_x, int &_y)
     }
 }
 //----------------------------------------------------------------------------------------------------------------------
-void Camera::camZoom(int &_y)
+void Camera::camZoom(const int &_y)
 {
     int diffy=_y-m_oldZoom;
     m_zoom -= (float)0.05f * diffy;
@@ -88,12 +88,17 @@ void Camera::camZoom(int &_y)
 //----------------------------------------------------------------------------------------------------------------------
 void Camera::getCamDir()
 {
+    //Rodrigues' rotation formula for rotating a vector in space, given an axis and angle of rotation.
+    //https://en.wikipedia.org/wiki/Rodrigues%27_rotation_formula
+    //[Accessed 2017]
+    //rotatedVec = vector*cos(angle) + cross(axis, vector)*sin(angle) + axis*dot(axis, vector)*(1 - cos(angle);
+
     m_rotation.y = m_rotY;
     m_rotation.x = 0;
     m_rotation.z = 0;
     anglesToAxes();
 
-    m_forward = ((float)cos(glm::radians(m_rotX))*m_forward) + ((float)sin(glm::radians(m_rotX))*glm::cross(m_left, m_forward)) +
-            ((1 - (float)cos(glm::radians(m_rotX)))*(glm::dot(m_left,m_forward))*m_forward);
+    m_forward = ((float)cos(glm::radians(m_rotX)) * m_forward) + ((float)sin(glm::radians(m_rotX)) * glm::cross(m_left, m_forward)) +
+            ((1 - (float)cos(glm::radians(m_rotX))) * (glm::dot(m_left,m_forward)) * m_forward);
     m_forward*=20.0f;
 }

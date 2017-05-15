@@ -50,18 +50,18 @@ public:
     /// \brief method to update camera rotation angles
     /// \param[in] _x current x coordinates of the mouse
     /// \param[in] _y current y coordinates of the mouse
-    void camOrbit(int &_x, int &_y);
+    void camOrbit(const int &_x, const int &_y);
     /// \brief method to update camera zoom
     /// \param[in] _y current y coordinates of the mouse
-    void camZoom(int &_y);
+    void camZoom(const int &_y);
     /// \brief method to find current camera orientation vector
     void getCamDir();
 private:
     //private methods
     /// \brief method to load ModelView matrix
-    void loadModelView(glm::mat4 _matrix);
+    void loadModelView(const glm::mat4 _matrix);
     /// \brief method to load Projection matrix
-    void loadProjection(glm::mat4 _matrix);
+    void loadProjection(const glm::mat4 _matrix);
 }; //end of class
 
 #endif // CAMERA_H

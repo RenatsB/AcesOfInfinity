@@ -8,7 +8,7 @@
 #include <cmath>
 #include <glm/gtx/norm.hpp>
 
-void GameObject::moveObject(float &_objSpeed)
+void GameObject::moveObject(const float &_objSpeed)
 {
     anglesToAxes(); //recalculate direction vectors
     m_position += m_forward*_objSpeed;
@@ -56,7 +56,7 @@ void GameObject::anglesToAxes()
 /// The following section was taken from :-
 /// Richard Fabian (2011). Thread: GLM:Euler Angles to Quaternion [online]. Answered Jun 10 2011 at 10:05 [Accessed 2017].
 /// Available from: "https://gamedev.stackexchange.com/questions/13436/glm-euler-angles-to-quaternion".
-glm::quat GameObject::anglesToQuat(glm::vec3 &_angles)
+glm::quat GameObject::anglesToQuat(const glm::vec3 &_angles)
 {
     float sx, sy, sz, cx, cy, cz;
     sx = sin(_angles.x/2); sy = sin(_angles.y/2); sz = sin(_angles.z/2);
@@ -107,7 +107,7 @@ glm::quat GameObject::RotationBetweenVectors(glm::vec3 &_start, glm::vec3 &_dest
 /// The following section was taken from :-
 /// Arnaud Masserann (2013). quaternion_utils.cpp(Github) [online]. [Accessed 2017].
 /// Available from: "https://github.com/opengl-tutorials/ogl/blob/master/common/quaternion_utils.cpp".
-glm::quat GameObject::RotateTowards(glm::quat &_q1, glm::quat &_q2, float _maxAngle){
+glm::quat GameObject::RotateTowards(glm::quat &_q1, glm::quat &_q2, const float _maxAngle){
 
         if( _maxAngle < 0.001f ){
                 // No rotation allowed. Prevent dividing by 0 later.
